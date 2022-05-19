@@ -1,5 +1,6 @@
 export abstract class MessageException {
-  static GENERAL = 'Ups ocurrio un error';
-  static NOT_FOUND = 'No existe el registro';
-  static NOT_DELETE = 'No se puede eliminar, contacte con los administradores';
+  static GENERAL = 'Oops an error occurred';
+  static NOT_FOUND = 'There is not record';
+  static NOT_DELETE = "Can't delete, contact administrators";
+  static EMAIL_FOUND = 'The email already exists';
 }
