@@ -5,4 +5,5 @@ export interface EnviromentVariables {
   DATABASE_PASSWORD: string;
   DATABASE_HOST: string;
   DATABASE_PORT: string;
+  JWT_SECRET_KEY: string;
 }

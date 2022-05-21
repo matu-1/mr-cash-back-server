@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { EnviromentVariables } from '../utils/enviroment-variables';
 
 export const databaseProviders = [
