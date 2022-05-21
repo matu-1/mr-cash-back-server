@@ -1,8 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
-  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -12,24 +10,15 @@ import { Response } from 'src/utils/response';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CrudController } from '../../utils/crud.controller';
+import { User } from './user.entity';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('user')
-export class UserController {
-  constructor(private userService: UserService) {}
-
-  @ApiOperation({ summary: 'User list' })
-  @Get()
-  async findAll() {
-    const result = await this.userService.findAll();
-    return new Response(result);
-  }
-
-  @Get(':id')
-  async findById(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.userService.findById(id);
-    return new Response(result);
+export class UserController extends CrudController<User> {
+  constructor(private userService: UserService) {
+    super(userService);
   }
 
   @Post()
@@ -44,12 +33,6 @@ export class UserController {
     @Body() body: UpdateUserDto,
   ) {
     const result = await this.userService.update(id, body);
-    return new Response(result);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.userService.remove(id);
     return new Response(result);
   }
 }
