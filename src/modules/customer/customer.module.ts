@@ -8,5 +8,6 @@ import { CustomerRepository } from './customer.repository';
   imports: [TypeOrmModule.forFeature([CustomerRepository])],
   providers: [CustomerService],
   controllers: [CustomerController],
+  exports: [CustomerService],
 })
 export class CustomerModule {}

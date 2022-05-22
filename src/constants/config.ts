@@ -6,4 +6,8 @@ export const CONFIG = {
     ADMIN: 'admin',
     OPERATOR: 'operator',
   },
+  STATUS: {
+    ENABLED: 0,
+    DISABLED: 1,
+  },
 };
