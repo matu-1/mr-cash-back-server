@@ -13,7 +13,6 @@ export class Credit extends BaseEntity {
     type: 'decimal',
     precision: 16,
     scale: 2,
-    nullable: true,
   })
   totalAmount: number;
   @Column({ type: 'decimal', precision: 16, scale: 2, default: 0 })
@@ -32,9 +31,9 @@ export class Credit extends BaseEntity {
     nullable: true,
   })
   deliveryAmount: number;
-  @Column({ name: 'percentage_service_fee', type: 'tinyint' })
+  @Column({ name: 'percentage_service_fee', type: 'double' })
   percentageServiceFee: number;
-  @Column({ name: 'percentage_interest', type: 'tinyint' })
+  @Column({ name: 'percentage_interest', type: 'double' })
   percentageInterest: number;
   //relations
   @Column({ name: 'customer_id' })

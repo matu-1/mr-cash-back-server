@@ -6,4 +6,5 @@ export interface EnviromentVariables {
   DATABASE_HOST: string;
   DATABASE_PORT: string;
   JWT_SECRET_KEY: string;
+  JWT_MOBILE_EXPIRTES_IN: string;
 }

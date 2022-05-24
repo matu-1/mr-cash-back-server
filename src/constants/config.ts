@@ -10,4 +10,22 @@ export const CONFIG = {
     ENABLED: 0,
     DISABLED: 1,
   },
+  PERCENTAGE_SERVICE_FEE: {
+    //Tasa Servicio
+    MAX: 20, //300-999
+    MIN: 15, //1000-2000
+  },
+  PERCENTAGE_INTEREST: {
+    //Interes
+    SIX_WEEKS: {
+      //6 semanas
+      PERCENTAGE: 4.5,
+      QUANTITY: 6,
+    },
+    EIGHT_WEEKS: {
+      //8 semanas
+      PERCENTAGE: 6,
+      QUANTITY: 8,
+    },
+  },
 };
