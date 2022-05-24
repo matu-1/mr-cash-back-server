@@ -14,5 +14,6 @@ import { BankAccountModule } from '../bank-account/bank-account.module';
   ],
   controllers: [CreditController],
   providers: [CreditService],
+  exports: [CreditService],
 })
 export class CreditModule {}

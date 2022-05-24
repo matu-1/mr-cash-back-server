@@ -9,7 +9,7 @@ export class WarrantyPhoto extends BaseEntity {
   //relations
   @Column({ name: 'warranty_id' })
   warrantyId: string;
-  @ManyToOne(() => Warranty)
+  @ManyToOne(() => Warranty, (warranty) => warranty.photos)
   @JoinColumn({ name: 'warranty_id' })
   warranty: Warranty;
 }

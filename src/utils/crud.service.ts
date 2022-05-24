@@ -9,16 +9,25 @@ export abstract class CrudService<
 > {
   constructor(private repository: Repository<TEntity>) {}
 
-  async findAll() {
+  async findAll(relations?: string[]) {
     return await this.repository.find({
       order: { createdAt: 'DESC' },
+      relations,
     } as any);
   }
 
-  async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
-    const data = await this.repository.findOne(id);
+  async findByIdWithRelations(
+    id: string,
+    relations?: string[],
+    errorMessage = MessageException.NOT_FOUND,
+  ) {
+    const data = await this.repository.findOne(id, { relations });
     if (!data) throw new NotFoundException(errorMessage);
     return data;
+  }
+
+  async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
+    return this.findByIdWithRelations(id, undefined, errorMessage);
   }
 
   async create(dto: TCreateDto): Promise<TEntity> {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CrudService } from '../../utils/crud.service';
 import { Credit } from './credit.entity';
 import { CreateCreditDto } from './dtos/create-credit.dto';
@@ -6,6 +6,9 @@ import { CreditRepository } from './credit.repository';
 import { CustomerService } from '../customer/customer.service';
 import { BankAccountService } from '../bank-account/bank-account.service';
 import { CONFIG } from '../../constants/config';
+import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
+import { Warranty } from '../warranty/warranty.entity';
+import { MessageException } from '../../constants/message-exception';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -15,6 +18,14 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     private bankAccountService: BankAccountService,
   ) {
     super(creditRepository);
+  }
+
+  async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
+    return this.findByIdWithRelations(
+      id,
+      ['warranties', 'warranties.photos'],
+      errorMessage,
+    );
   }
 
   async create(dto: CreateCreditDto) {
@@ -40,7 +51,30 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
     dto.totalAmount = dto.originalAmount + serviceFee + interest;
-    //TODO: registrar garantias
-    return super.create(dto);
+    try {
+      return await this.creditRepository.manager.transaction(
+        async (manager) => {
+          const credit = await manager.save(Credit, dto);
+          for (let i = 0; i < dto.warranties.length; i++) {
+            const item = dto.warranties[i];
+            const warranty = await manager.save(Warranty, {
+              ...item,
+              creditId: credit.id,
+            });
+            await manager.save(
+              WarrantyPhoto,
+              item.photosUrl.map((photoUrl) => ({
+                photoUrl,
+                warrantyId: warranty.id,
+              })),
+            );
+          }
+          return credit;
+        },
+      );
+    } catch (error) {
+      //console.log(error);
+      throw new BadRequestException(MessageException.GENERAL);
+    }
   }
 }

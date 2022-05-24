@@ -1,7 +1,8 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../utils/base.entity';
 import { Category } from '../category/category.entity';
 import { Credit } from '../credit/credit.entity';
+import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 
 @Entity()
 export class Warranty extends BaseEntity {
@@ -24,4 +25,6 @@ export class Warranty extends BaseEntity {
   @ManyToOne(() => Credit)
   @JoinColumn({ name: 'credit_id' })
   credit: Credit;
+  @OneToMany(() => WarrantyPhoto, (photo) => photo.warranty)
+  photos: WarrantyPhoto[];
 }
