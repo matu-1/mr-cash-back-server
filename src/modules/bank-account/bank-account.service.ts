@@ -18,6 +18,16 @@ export class BankAccountService extends CrudService<
     super(bankAccountRepository);
   }
 
+  async findByCustomer(customerId: string) {
+    await this.customerService.findById(
+      customerId,
+      'The customer does not exist',
+    );
+    return this.bankAccountRepository.find({
+      where: { customerId },
+    });
+  }
+
   async create(dto: CreateBankAccountDto) {
     await this.customerService.findById(
       dto.customerId,
