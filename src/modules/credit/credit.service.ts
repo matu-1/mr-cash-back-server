@@ -9,6 +9,9 @@ import { CONFIG } from '../../constants/config';
 import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 import { Warranty } from '../warranty/warranty.entity';
 import { MessageException } from '../../constants/message-exception';
+import { CreditStatus } from '../credit-status/credit-status.entity';
+import { CREDIT_STATUS } from './credit.constant';
+import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -55,6 +58,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       return await this.creditRepository.manager.transaction(
         async (manager) => {
           const credit = await manager.save(Credit, dto);
+          await manager.save(CreditStatus, {
+            status: CREDIT_STATUS.PENDING,
+            creditId: credit.id,
+          });
           for (let i = 0; i < dto.warranties.length; i++) {
             const item = dto.warranties[i];
             const warranty = await manager.save(Warranty, {
@@ -76,5 +83,28 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       //console.log(error);
       throw new BadRequestException(MessageException.GENERAL);
     }
+  }
+
+  async changeStatus(id: string, dto: UpdateCreditStatusDto) {
+    const data = await this.findById(id);
+    const message = `Can't change state to ${dto.status}`;
+    if (
+      data.status == CREDIT_STATUS.APPROVED &&
+      dto.status != CREDIT_STATUS.EXPIRED &&
+      dto.status != CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.OFFERED &&
+      dto.status != CREDIT_STATUS.REJECTED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.PREAPPROVED &&
+      dto.status != CREDIT_STATUS.APPROVED &&
+      dto.status != CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException(message);
+    return this.creditRepository.save({ id, ...dto });
   }
 }

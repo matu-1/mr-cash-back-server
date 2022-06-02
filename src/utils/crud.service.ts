@@ -16,6 +16,18 @@ export abstract class CrudService<
     } as any);
   }
 
+  async findAllByRange(start: Date, end: Date, relations?: string[]) {
+    console.log('start:', start);
+    console.log('end:', end);
+    let query = this.repository
+      .createQueryBuilder('g')
+      .where('g.createdAt BETWEEN :start and :end', { start, end });
+    relations?.forEach((relation) => {
+      query = query.leftJoinAndSelect(`g.${relation}`, relation);
+    });
+    return await query.getMany();
+  }
+
   async findByIdWithRelations(
     id: string,
     relations?: string[],

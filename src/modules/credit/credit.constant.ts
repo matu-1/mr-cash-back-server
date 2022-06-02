@@ -1,7 +1,7 @@
 export const CREDIT_STATUS = {
   PENDING: 0,
   PREAPPROVED: 1,
-  APROVED: 2,
+  APPROVED: 2,
   REJECTED: 3,
   CANCELLED: 4,
   EXPIRED: 5,
