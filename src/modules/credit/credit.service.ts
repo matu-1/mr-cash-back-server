@@ -12,6 +12,7 @@ import { MessageException } from '../../constants/message-exception';
 import { CreditStatus } from '../credit-status/credit-status.entity';
 import { CREDIT_STATUS } from './credit.constant';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
+import { OfferCreditDto } from './dtos/offer-credit.do';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -29,6 +30,19 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       ['customer', 'bankAccount', 'warranties', 'warranties.photos'],
       errorMessage,
     );
+  }
+
+  async findByCustomer(customerId: string) {
+    await this.customerService.findById(
+      customerId,
+      'The customer does not exist',
+    );
+    return this.creditRepository.find({
+      where: { customerId },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   async create(dto: CreateCreditDto) {
@@ -85,18 +99,24 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
   }
 
+  async offer(dto: OfferCreditDto) {
+    const credit = await this.findById(dto.id, 'The credit does not exist');
+    const body: CreateCreditDto = {
+      ...credit,
+      ...dto,
+    };
+    const data = await this.create(body);
+    //TODO: Por hacer
+    return data;
+  }
+
   async changeStatus(id: string, dto: UpdateCreditStatusDto) {
     const data = await this.findById(id);
-    const message = `Can't change state to ${dto.status}`;
+    const message = `Can't change state ${data.status} to ${dto.status}`;
     if (
-      data.status == CREDIT_STATUS.APPROVED &&
-      dto.status != CREDIT_STATUS.EXPIRED &&
+      data.status == CREDIT_STATUS.PENDING &&
       dto.status != CREDIT_STATUS.CANCELLED
-    )
-      throw new BadRequestException(message);
-    if (
-      data.status == CREDIT_STATUS.OFFERED &&
-      dto.status != CREDIT_STATUS.REJECTED
+      // && dto.status != CREDIT_STATUS.PREAPPROVED
     )
       throw new BadRequestException(message);
     if (
@@ -105,6 +125,33 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       dto.status != CREDIT_STATUS.CANCELLED
     )
       throw new BadRequestException(message);
-    return this.creditRepository.save({ id, ...dto });
+    if (
+      data.status == CREDIT_STATUS.APPROVED &&
+      dto.status != CREDIT_STATUS.EXPIRED &&
+      dto.status != CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.OFFERED &&
+      dto.status != CREDIT_STATUS.REJECTED &&
+      dto.status != CREDIT_STATUS.PREAPPROVED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.CANCELLED ||
+      data.status == CREDIT_STATUS.REJECTED ||
+      data.status == CREDIT_STATUS.EXPIRED
+    )
+      throw new BadRequestException(message);
+    return this.creditRepository.manager.transaction(async (manager) => {
+      const res = await Promise.all([
+        manager.save(CreditStatus, {
+          status: dto.status,
+          creditId: id,
+        }),
+        manager.save(Credit, { id, ...dto }),
+      ]);
+      return res[1];
+    });
   }
 }
