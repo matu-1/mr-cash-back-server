@@ -130,19 +130,27 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const body: CreateCreditDto = {
       ...credit,
       ...dto,
-      warranties: credit.warranties.map(({ photos, ...warranty }) => {
+      warranties: dto.warranties.map((warrantyDto) => {
+        const warrantyRes = credit.warranties.find(
+          (item) => item.id == warrantyDto.id,
+        );
+        if (!warrantyRes)
+          throw new BadRequestException(
+            `The warrantyId: ${warrantyDto.id} does not exist`,
+          );
+        const { photos, ...warranty } = warrantyRes;
         delete warranty.id;
         delete warranty.creditId;
         delete warranty.createdAt;
         delete warranty.updatedAt;
         return {
           ...warranty,
+          value: warrantyDto.value,
           photosUrl: photos.map((photo) => photo.photoUrl),
         };
       }),
     };
     body.creditPreviousId = id;
-    //TODO: guardar value en garatia nueva o la anterior
     const data = await this.create(body, CREDIT_STATUS.OFFERED);
     return data;
   }
