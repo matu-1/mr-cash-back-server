@@ -43,7 +43,7 @@ export abstract class CrudService<
   }
 
   async create(dto: TCreateDto): Promise<TEntity> {
-    return await this.repository.save(dto);
+    return await this.repository.save(this.repository.create(dto) as any);
   }
 
   async update(id: string, dto: DeepPartial<TEntity>): Promise<TEntity> {

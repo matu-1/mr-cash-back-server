@@ -12,6 +12,14 @@ export class UserService extends CrudService<User, CreateUserDto> {
     super(userRepository);
   }
 
+  async findAllNoUser(id: string) {
+    return await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id <> :id', { id })
+      .orderBy('user.createdAt', 'DESC')
+      .getMany();
+  }
+
   async findByEmail(email: string, id = '') {
     return await this.userRepository
       .createQueryBuilder()
