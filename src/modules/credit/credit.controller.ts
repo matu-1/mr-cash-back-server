@@ -14,7 +14,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateCreditDto } from './dtos/create-credit.dto';
 import { Response } from '../../utils/response';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
-import { OfferCreditDto } from './dtos/offer-credit.do';
+import { OfferCreditDto } from './dtos/offer-credit.dto';
 
 @ApiTags('Credit')
 @Controller('credit')

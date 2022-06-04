@@ -12,7 +12,7 @@ import { MessageException } from '../../constants/message-exception';
 import { CreditStatus } from '../credit-status/credit-status.entity';
 import { CREDIT_STATUS } from './credit.constant';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
-import { OfferCreditDto } from './dtos/offer-credit.do';
+import { OfferCreditDto } from './dtos/offer-credit.dto';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -45,7 +45,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     });
   }
 
-  async create(dto: CreateCreditDto) {
+  async create(
+    dto: CreateCreditDto,
+    creditStatus: number = CREDIT_STATUS.PENDING,
+  ) {
     await this.customerService.findById(
       dto.customerId,
       'The customer does not exist',
@@ -71,9 +74,21 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     try {
       return await this.creditRepository.manager.transaction(
         async (manager) => {
+          dto.status = creditStatus;
+          if ((dto as any).id) {
+            await manager.save(Credit, {
+              id: (dto as any).id,
+              status: CREDIT_STATUS.LOST,
+            });
+            await manager.save(CreditStatus, {
+              status: CREDIT_STATUS.LOST,
+              creditId: (dto as any).id,
+            });
+            delete (dto as any).id;
+          }
           const credit = await manager.save(Credit, dto);
           await manager.save(CreditStatus, {
-            status: CREDIT_STATUS.PENDING,
+            status: creditStatus,
             creditId: credit.id,
           });
           for (let i = 0; i < dto.warranties.length; i++) {
@@ -99,14 +114,36 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
   }
 
-  async offer(dto: OfferCreditDto) {
-    const credit = await this.findById(dto.id, 'The credit does not exist');
+  async offer({ id, ...dto }: OfferCreditDto) {
+    const credit = await this.findById(id, 'The credit does not exist');
+    if (
+      credit.status == CREDIT_STATUS.LOST ||
+      credit.status == CREDIT_STATUS.REJECTED ||
+      credit.status == CREDIT_STATUS.EXPIRED ||
+      credit.status == CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException('The credit cannot be offered');
+    delete credit.customer;
+    delete credit.bankAccount;
+    delete credit.createdAt;
+    delete credit.updatedAt;
     const body: CreateCreditDto = {
       ...credit,
       ...dto,
+      warranties: credit.warranties.map(({ photos, ...warranty }) => {
+        delete warranty.id;
+        delete warranty.creditId;
+        delete warranty.createdAt;
+        delete warranty.updatedAt;
+        return {
+          ...warranty,
+          photosUrl: photos.map((photo) => photo.photoUrl),
+        };
+      }),
     };
-    const data = await this.create(body);
-    //TODO: Por hacer
+    body.creditPreviousId = id;
+    //TODO: guardar value en garatia nueva o la anterior
+    const data = await this.create(body, CREDIT_STATUS.OFFERED);
     return data;
   }
 

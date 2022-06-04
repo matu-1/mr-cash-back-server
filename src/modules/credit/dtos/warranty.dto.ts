@@ -2,6 +2,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsUrl,
   IsUUID,

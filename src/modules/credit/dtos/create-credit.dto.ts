@@ -26,7 +26,8 @@ export class CreateCreditDto {
   quantityFee: number;
   @IsIn([PLAN.WEEKLY, PLAN.MONTHLY])
   plan: number;
-  // status: number;
+  @ApiProperty({ readOnly: true })
+  status: number;
   @ApiProperty({ readOnly: true })
   deliveryAmount: number;
   @ApiProperty({ readOnly: true })
@@ -37,7 +38,8 @@ export class CreateCreditDto {
   customerId: string;
   @IsUUID()
   bankAccountId: string;
-  // creditPreviousId: string;
+  @ApiProperty({ readOnly: true })
+  creditPreviousId: string;
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })

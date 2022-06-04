@@ -12,7 +12,7 @@ export class Warranty extends BaseEntity {
   model: string;
   @Column({ type: 'text', nullable: true })
   description: string;
-  @Column({ type: 'decimal', precision: 16, scale: 2 })
+  @Column({ type: 'decimal', precision: 16, scale: 2, nullable: true })
   value: number;
   //relations
   @Column({ name: 'category_id' })
