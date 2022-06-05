@@ -30,10 +30,11 @@ export class AuthController {
     return new Response(result);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req: Request) {
-    return new Response(req.user);
+  async getProfile(@User('id') id: string) {
+    const result = await this.authService.getProfile(id);
+    return new Response(result);
   }
 
   @ApiOperation({ summary: 'Renew the token' })

@@ -28,12 +28,17 @@ export class AuthService {
   }
 
   async register(body: CreateUserDto) {
-    const usuario = await this.userService.create(body);
-    return this.getUserToken(usuario);
+    const user = await this.userService.create(body);
+    return this.getUserToken(user);
   }
 
   renew(user: User) {
     return this.getUserToken(user);
+  }
+
+  async getProfile(id: string) {
+    const user = await this.userService.findById(id);
+    return user;
   }
 
   generateToken(user: User) {
