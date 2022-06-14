@@ -10,13 +10,14 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { CONFIG } from 'src/constants/config';
 import { PLAN } from '../credit.constant';
 import { Warranty } from './warranty.dto';
 
 export class CreateCreditDto {
   @IsNumber()
-  @Min(300)
-  @Max(2000)
+  @Min(CONFIG.CREDIT.MIN_AMOUNT)
+  @Max(CONFIG.CREDIT.MAX_AMOUNT)
   originalAmount: number;
   @ApiProperty({ readOnly: true })
   totalAmount: number;

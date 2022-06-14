@@ -160,8 +160,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const message = `Can't change state ${data.status} to ${dto.status}`;
     if (
       data.status == CREDIT_STATUS.PENDING &&
-      dto.status != CREDIT_STATUS.CANCELLED
-      // && dto.status != CREDIT_STATUS.PREAPPROVED
+      dto.status != CREDIT_STATUS.CANCELLED &&
+      dto.status != CREDIT_STATUS.PREAPPROVED
     )
       throw new BadRequestException(message);
     if (
@@ -179,6 +179,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     if (
       data.status == CREDIT_STATUS.OFFERED &&
       dto.status != CREDIT_STATUS.REJECTED &&
+      dto.status != CREDIT_STATUS.CANCELLED &&
       dto.status != CREDIT_STATUS.PREAPPROVED
     )
       throw new BadRequestException(message);

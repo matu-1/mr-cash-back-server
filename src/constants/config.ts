@@ -28,4 +28,8 @@ export const CONFIG = {
       QUANTITY: 8,
     },
   },
+  CREDIT: {
+    MIN_AMOUNT: 300,
+    MAX_AMOUNT: 2000,
+  },
 };
