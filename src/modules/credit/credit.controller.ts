@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Put,
   Get,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CrudController } from '../../utils/crud.controller';
 import { Credit } from './credit.entity';
@@ -15,6 +16,7 @@ import { CreateCreditDto } from './dtos/create-credit.dto';
 import { Response } from '../../utils/response';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
+import { Query } from '@nestjs/common';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -25,8 +27,11 @@ export class CreditController extends CrudController<Credit> {
 
   @ApiOperation({ summary: 'Get credits by customer' })
   @Get('customer/:id')
-  async findByCustomer(@Param('id', ParseUUIDPipe) id: string) {
-    const result = await this.creditService.findByCustomer(id);
+  async findByCustomer(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('limit') limit?: number,
+  ) {
+    const result = await this.creditService.findByCustomer(id, limit);
     return new Response(result);
   }
 

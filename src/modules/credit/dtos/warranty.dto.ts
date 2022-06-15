@@ -14,7 +14,7 @@ export class Warranty {
   @IsNotEmpty()
   brand: string;
   @IsNotEmpty()
-  model: string;
+  status: string;
   @IsOptional()
   @MinLength(10)
   description: string;

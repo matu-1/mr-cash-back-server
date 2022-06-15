@@ -32,17 +32,17 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
   }
 
-  async findByCustomer(customerId: string) {
+  async findByCustomer(customerId: string, limit?: number) {
     await this.customerService.findById(
       customerId,
       'The customer does not exist',
     );
-    return this.creditRepository.find({
-      where: { customerId },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+    let query = this.creditRepository
+      .createQueryBuilder('credit')
+      .where('credit.customerId = :customerId', { customerId })
+      .orderBy('credit.createdAt', 'DESC');
+    if (limit) query = query.take(limit);
+    return query.getMany();
   }
 
   async create(

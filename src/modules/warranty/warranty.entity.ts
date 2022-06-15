@@ -8,8 +8,8 @@ import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 export class Warranty extends BaseEntity {
   @Column({ length: 80 })
   brand: string;
-  @Column({ length: 80 })
-  model: string;
+  @Column({ length: 50 })
+  status: string;
   @Column({ type: 'text', nullable: true })
   description: string;
   @Column({ type: 'decimal', precision: 16, scale: 2, nullable: true })

@@ -5,6 +5,7 @@ import {
   Param,
   Put,
   ParseUUIDPipe,
+  Get,
 } from '@nestjs/common';
 import { CrudController } from '../../utils/crud.controller';
 import { Customer } from './customer.entity';
@@ -33,6 +34,12 @@ export class CustomerController extends CrudController<Customer> {
     @Body() dto: UpdateCustomerDto,
   ) {
     const result = await this.customerService.update(id, dto);
+    return new Response(result);
+  }
+
+  @Get('email/:email')
+  async findByEmail(@Param('email') email: string) {
+    const result = await this.customerService.findByEmail(email);
     return new Response(result);
   }
 }

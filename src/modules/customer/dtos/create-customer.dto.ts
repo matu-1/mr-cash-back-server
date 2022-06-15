@@ -1,3 +1,4 @@
+import { IsDateString, IsEmail } from 'class-validator';
 import {
   IsNotEmpty,
   IsNumberString,
@@ -13,8 +14,10 @@ export class CreateCustomerDto {
   @IsNumberString()
   @MinLength(8)
   phone: string;
-  @IsNotEmpty()
-  otp: string;
+  @IsEmail()
+  email: string;
+  @IsDateString()
+  birthday: string;
   status: string;
   @IsNotEmpty()
   referredCode: string;

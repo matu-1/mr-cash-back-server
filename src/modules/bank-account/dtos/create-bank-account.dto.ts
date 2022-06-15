@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumberString, IsUUID, MinLength } from 'class-validator';
+import { IsNotEmpty, IsUUID, MinLength } from 'class-validator';
 
 export class CreateBankAccountDto {
   @IsNotEmpty()
@@ -9,10 +9,9 @@ export class CreateBankAccountDto {
   @IsNotEmpty()
   bankName: string;
   @IsNotEmpty()
-  identityCard: string;
-  @IsNumberString()
-  @MinLength(8)
-  phoneNumber: string;
+  identityNumber: string;
+  @IsNotEmpty()
+  accountType: string;
   @IsUUID()
   customerId: string;
 }

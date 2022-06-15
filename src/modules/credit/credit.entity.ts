@@ -36,6 +36,10 @@ export class Credit extends BaseEntity {
   percentageServiceFee: number;
   @Column({ name: 'percentage_interest', type: 'double' })
   percentageInterest: number;
+  @Column({ name: 'url_contract', nullable: true })
+  urlContract: string;
+  @Column({ name: 'url_signature', nullable: true })
+  urlSignature: string;
   //relations
   @Column({ name: 'customer_id' })
   customerId: string;

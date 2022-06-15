@@ -12,8 +12,7 @@ export class CreateWarrantyDto {
   @MinLength(2)
   brand: string;
   @IsNotEmpty()
-  @MinLength(2)
-  model: string;
+  status: string;
   @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
