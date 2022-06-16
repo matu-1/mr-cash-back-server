@@ -21,4 +21,4 @@ const nDate = new Date().toLocaleString('es-ES', {
   timeZone: 'UTC',
 });
 
-console.log(nDate);
+console.log(nDate, new Date());

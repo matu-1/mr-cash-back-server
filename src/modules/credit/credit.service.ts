@@ -10,9 +10,12 @@ import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 import { Warranty } from '../warranty/warranty.entity';
 import { MessageException } from '../../constants/message-exception';
 import { CreditStatus } from '../credit-status/credit-status.entity';
-import { CREDIT_STATUS } from './credit.constant';
+import { CREDIT_STATUS, PLAN } from './credit.constant';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
+import { CreditFee } from '../credit-fee/credit-fee.entity';
+import { EntityManager } from 'typeorm';
+import { CreateCreditFee } from '../credit-fee/interfaces/credit-fee.interface';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -190,14 +193,34 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     )
       throw new BadRequestException(message);
     return this.creditRepository.manager.transaction(async (manager) => {
-      const res = await Promise.all([
+      const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
           creditId: id,
         }),
         manager.save(Credit, { id, ...dto }),
-      ]);
+      ];
+      if (dto.status === CREDIT_STATUS.APPROVED)
+        dataToSave.push(this.createFees(data, manager));
+      const res = await Promise.all(dataToSave);
       return res[1];
     });
+  }
+
+  createFees(credit: Credit, manager: EntityManager) {
+    const creditFees: CreateCreditFee[] = [];
+    const amount = credit.totalAmount / credit.quantityFee;
+    const today = new Date();
+    const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
+    for (let index = 1; index <= credit.quantityFee; index++) {
+      today.setDate(today.getDate() + offsetDay);
+      console.log(index, today);
+      creditFees.push({
+        creditId: credit.id,
+        amount,
+        paymentDate: today,
+      });
+    }
+    return manager.save(CreditFee, creditFees);
   }
 }

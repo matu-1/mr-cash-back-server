@@ -16,15 +16,21 @@ export class CreditFee extends BaseEntity {
     nullable: true,
   })
   amountPaid: number;
-  @Column({ type: 'decimal', precision: 16, scale: 2, default: 0 })
-  amount_coupon: number;
-  @Column({ name: 'payment_method', type: 'tinyint' })
+  @Column({
+    name: 'amount_coupon',
+    type: 'decimal',
+    precision: 16,
+    scale: 2,
+    default: 0,
+  })
+  amountCoupon: number;
+  @Column({ name: 'payment_method', type: 'tinyint', nullable: true })
   paymentMethod: number;
   @Column({ type: 'tinyint', default: FeeStatus.Pending })
   status: number;
   @Column({ name: 'payment_date', type: 'date' })
   paymentDate: Date;
-  @Column({ name: 'paid_at' })
+  @Column({ name: 'paid_at', nullable: true })
   paidAt: Date;
   //relations
   @Column({ name: 'credit_id' })
