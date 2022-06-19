@@ -7,4 +7,5 @@ export enum FeeStatus {
 export enum PaymentMethod {
   Cash,
   CreditCard,
+  Other,
 }
