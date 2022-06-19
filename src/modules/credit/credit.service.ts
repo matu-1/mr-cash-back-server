@@ -210,9 +210,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   createFees(credit: Credit, manager: EntityManager) {
     const creditFees: CreateCreditFee[] = [];
     const amount = credit.totalAmount / credit.quantityFee;
-    const today = new Date();
+    let today = new Date();
     const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
     for (let index = 1; index <= credit.quantityFee; index++) {
+      today = new Date(today);
       today.setDate(today.getDate() + offsetDay);
       console.log(index, today);
       creditFees.push({

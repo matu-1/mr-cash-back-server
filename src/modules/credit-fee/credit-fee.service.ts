@@ -17,6 +17,7 @@ export class CreditFeeService extends CrudService<CreditFee, any> {
     await this.creditService.findById(creditId, 'The credit does not exist');
     return this.creditFeeRepository.find({
       where: { creditId },
+      order: { paymentDate: 'ASC' },
     });
   }
 }
