@@ -25,7 +25,7 @@ export abstract class CrudService<
     relations?.forEach((relation) => {
       query = query.leftJoinAndSelect(`g.${relation}`, relation);
     });
-    return await query.getMany();
+    return await query.orderBy('g.createdAt', 'DESC').getMany();
   }
 
   async findByIdWithRelations(
