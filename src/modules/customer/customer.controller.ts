@@ -42,4 +42,10 @@ export class CustomerController extends CrudController<Customer> {
     const result = await this.customerService.findByEmail(email);
     return new Response(result);
   }
+
+  @Get('phone/:phone')
+  async findByPhone(@Param('phone') phone: string) {
+    const result = await this.customerService.findByPhone(phone);
+    return new Response(result);
+  }
 }

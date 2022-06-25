@@ -8,6 +8,8 @@ export class UpdateCreditStatusDto {
     CREDIT_STATUS.REJECTED,
     CREDIT_STATUS.APPROVED,
     CREDIT_STATUS.PREAPPROVED,
+    CREDIT_STATUS.ACCEPTED,
+    CREDIT_STATUS.WAITING,
   ])
   status: number;
 }

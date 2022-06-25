@@ -1,4 +1,4 @@
-import { IsDateString, IsEmail } from 'class-validator';
+import { IsDateString, IsEmail, IsOptional } from 'class-validator';
 import {
   IsNotEmpty,
   IsNumberString,
@@ -21,15 +21,14 @@ export class CreateCustomerDto {
   status: string;
   @IsNotEmpty()
   referredCode: string;
-  @IsNotEmpty()
-  @IsUrl()
+  @IsOptional()
   profilePhotoUrl: string;
-  @IsNotEmpty()
-  @IsUrl()
+  @IsOptional()
   identityFrontUrl: string;
-  @IsNotEmpty()
-  @IsUrl()
+  @IsOptional()
   identityBackUrl: string;
+  @IsOptional()
+  tokenNotification: string;
   @IsNotEmpty()
   @IsUUID()
   cityId: string;
