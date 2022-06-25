@@ -16,6 +16,8 @@ import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { CreditFee } from '../credit-fee/credit-fee.entity';
 import { EntityManager } from 'typeorm';
 import { CreateCreditFee } from '../credit-fee/interfaces/credit-fee.interface';
+import { CreateContractDto } from './utils/create-pdf';
+import { uploadConctract } from './utils/create-pdf';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -193,6 +195,35 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     )
       throw new BadRequestException(message);
     return this.creditRepository.manager.transaction(async (manager) => {
+      if (dto.status === CREDIT_STATUS.APPROVED) {
+        const fees = await this.createFees(data, manager);
+        const contractDto: CreateContractDto = {
+          nit: '28555652655',
+          acreedorNombre: 'Juan Pablo',
+          acreedorCI: '12345678',
+          acreedorExpedicion: 'SC',
+          acreedorDireccion: 'Ramada Av avenida',
+          acreedorNroCasa: '1255',
+          deudorNombre: data.customer.name,
+          deudorCI: '15455654',
+          deudorExpedicion: 'SC',
+          deudorDireccion: 'Plan 3000 Av. paurito',
+          amount: data.originalAmount,
+          totalAmount: data.totalAmount,
+          quantityFee: data.quantityFee,
+          fistFeeDate: fees[0].paymentDate,
+          lastFeeDate: fees.pop().paymentDate,
+          warrantyDescription: data.warranties
+            .map(
+              (item) => `${item.brand} - ${item.status} - ${item.description}`,
+            )
+            .join(', '),
+          nroFacturaCompra: '******',
+          facturaCompra: '******',
+          creationDate: new Date(),
+        };
+        dto.urlContract = await uploadConctract(contractDto);
+      }
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
@@ -200,8 +231,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         }),
         manager.save(Credit, { id, ...dto }),
       ];
-      if (dto.status === CREDIT_STATUS.APPROVED)
-        dataToSave.push(this.createFees(data, manager));
       const res = await Promise.all(dataToSave);
       return res[1];
     });
@@ -215,7 +244,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     for (let index = 1; index <= credit.quantityFee; index++) {
       today = new Date(today);
       today.setDate(today.getDate() + offsetDay);
-      console.log(index, today);
       creditFees.push({
         creditId: credit.id,
         amount,

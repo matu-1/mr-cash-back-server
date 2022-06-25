@@ -10,4 +10,5 @@ export class UpdateCreditStatusDto {
     CREDIT_STATUS.PREAPPROVED,
   ])
   status: number;
+  urlContract: string;
 }
