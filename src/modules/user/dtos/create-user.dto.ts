@@ -1,5 +1,5 @@
 import { IsEmail, IsIn, IsNotEmpty, MinLength } from 'class-validator';
-import { CONFIG } from '../../../constants/config';
+import { Role } from '../../../constants/roles';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -10,6 +10,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
-  @IsIn([CONFIG.ROLE.ADMIN, CONFIG.ROLE.OPERATOR])
+  @IsIn(Object.values(Role))
   role: string;
 }

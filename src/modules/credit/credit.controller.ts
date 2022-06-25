@@ -6,7 +6,6 @@ import {
   ParseUUIDPipe,
   Put,
   Get,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CrudController } from '../../utils/crud.controller';
 import { Credit } from './credit.entity';

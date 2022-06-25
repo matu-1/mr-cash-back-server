@@ -3,3 +3,9 @@ export enum FeeStatus {
   Paid,
   ToCheck,
 }
+
+export enum PaymentMethod {
+  Cash,
+  CreditCard,
+  Other,
+}
