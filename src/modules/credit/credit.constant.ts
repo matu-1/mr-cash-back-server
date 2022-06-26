@@ -9,8 +9,8 @@ export const CREDIT_STATUS = {
   LOST: 7,
 
   ACCEPTED: 8,
-  COMPLETED: 9,
-  WAITING: 10,
+  WAITING: 9,
+  COMPLETED: 10,
 };
 
 export const PLAN = {

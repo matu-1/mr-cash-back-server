@@ -10,6 +10,7 @@ export class UpdateCreditStatusDto {
     CREDIT_STATUS.PREAPPROVED,
     CREDIT_STATUS.ACCEPTED,
     CREDIT_STATUS.WAITING,
+    CREDIT_STATUS.COMPLETED,
   ])
   status: number;
 }
