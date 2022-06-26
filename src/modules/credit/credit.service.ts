@@ -166,7 +166,19 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     if (
       data.status == CREDIT_STATUS.PENDING &&
       dto.status != CREDIT_STATUS.CANCELLED &&
-      dto.status != CREDIT_STATUS.PREAPPROVED
+      dto.status != CREDIT_STATUS.ACCEPTED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.ACCEPTED &&
+      dto.status != CREDIT_STATUS.WAITING &&
+      dto.status != CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.WAITING &&
+      dto.status != CREDIT_STATUS.PREAPPROVED &&
+      dto.status != CREDIT_STATUS.CANCELLED
     )
       throw new BadRequestException(message);
     if (
@@ -178,20 +190,22 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     if (
       data.status == CREDIT_STATUS.APPROVED &&
       dto.status != CREDIT_STATUS.EXPIRED &&
-      dto.status != CREDIT_STATUS.CANCELLED
+      dto.status != CREDIT_STATUS.CANCELLED &&
+      data.status == CREDIT_STATUS.COMPLETED
     )
       throw new BadRequestException(message);
     if (
       data.status == CREDIT_STATUS.OFFERED &&
       dto.status != CREDIT_STATUS.REJECTED &&
       dto.status != CREDIT_STATUS.CANCELLED &&
-      dto.status != CREDIT_STATUS.PREAPPROVED
+      dto.status != CREDIT_STATUS.ACCEPTED
     )
       throw new BadRequestException(message);
     if (
       data.status == CREDIT_STATUS.CANCELLED ||
       data.status == CREDIT_STATUS.REJECTED ||
-      data.status == CREDIT_STATUS.EXPIRED
+      data.status == CREDIT_STATUS.EXPIRED ||
+      data.status == CREDIT_STATUS.COMPLETED
     )
       throw new BadRequestException(message);
     return this.creditRepository.manager.transaction(async (manager) => {
