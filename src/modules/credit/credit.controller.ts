@@ -54,4 +54,13 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.changeStatus(id, dto);
     return new Response(result);
   }
+
+  @ApiOperation({
+    summary: 'Get Total by Status (Active, Canceled, Expired, Complete)',
+  })
+  @Get('total-by-status')
+  async getTotalByStatus() {
+    const result = await this.creditService.getTotalByStatus();
+    return new Response(result);
+  }
 }
