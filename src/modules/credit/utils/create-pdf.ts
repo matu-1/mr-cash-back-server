@@ -1,10 +1,15 @@
-import PdfPrinter from 'pdfmake';
-import fs from 'fs';
+/* eslint-disable @typescript-eslint/no-var-requires */
+// import PdfPrinter from 'pdfmake';
+const PdfPrinter = require('pdfmake');
 import * as path from 'path';
 import { TDocumentDefinitions, TFontDictionary } from 'pdfmake/interfaces';
 import { format } from 'date-fns';
-import esLocale from 'date-fns/locale/es';
-import writtenNumber from 'written-number';
+// import esLocale from 'date-fns/locale/es'; //no funciona no se xq
+const esLocale = require('date-fns/locale/es');
+const writtenNumber = require('written-number');
+const FormData = require('form-data');
+import { BadRequestException } from '@nestjs/common';
+import axios from 'axios';
 
 export interface CreateContractDto {
   nit: string;
@@ -17,19 +22,18 @@ export interface CreateContractDto {
   deudorCI: string;
   deudorExpedicion: string;
   deudorDireccion: string;
-  monto: string;
-  montoTotal: string;
+  amount: number;
+  totalAmount: number;
   quantityFee: number;
-  fistFeeDate: string;
-  lastFeeDate: string;
+  fistFeeDate: Date;
+  lastFeeDate: Date;
   warrantyDescription: string;
   nroFacturaCompra: string;
   facturaCompra: string;
   creationDate: Date;
 }
 
-export function createContractPdf(dto: CreateContractDto) {
-  const filePath = path.resolve('files/pdfs', 'contract.pdf');
+export async function createContractPdf(dto: CreateContractDto) {
   const fonts: TFontDictionary = {
     Roboto: {
       normal: path.resolve('files/fonts/Arial-Regular.ttf'),
@@ -49,11 +53,9 @@ export function createContractPdf(dto: CreateContractDto) {
     deudorCI,
     deudorExpedicion,
     deudorDireccion,
-    monto,
-    montoTotal,
+    amount,
+    totalAmount,
     quantityFee,
-    fistFeeDate,
-    lastFeeDate,
     warrantyDescription,
     nroFacturaCompra,
     facturaCompra,
@@ -64,8 +66,10 @@ export function createContractPdf(dto: CreateContractDto) {
     'd,MMMM,yy',
     { locale: esLocale },
   ).split(',');
-
+  const fistFeeDate = format(dto.fistFeeDate, 'dd/MM/yyyy');
+  const lastFeeDate = format(dto.lastFeeDate, 'dd/MM/yyyy');
   const printer = new PdfPrinter(fonts);
+
   const docDefinition: TDocumentDefinitions = {
     content: [
       { text: 'RECONOCIMIENTO DE DEUDA Y COMPROMISO DE PAGO', style: 'header' },
@@ -132,10 +136,10 @@ export function createContractPdf(dto: CreateContractDto) {
           'por concepto de Préstamo con Garantía prendaria en favor del ',
           { text: 'ACREEDOR', style: 'subtitle' },
           ', que asciende al monto de Bs. ',
-          { text: monto, decoration: 'underline' },
+          { text: amount, decoration: 'underline' },
           ' (',
           {
-            text: writtenNumber(monto, { lang: 'es' }),
+            text: writtenNumber(amount, { lang: 'es' }),
             decoration: 'underline',
           },
           '00/100 Bolivianos), suma de dinero que el ',
@@ -161,7 +165,7 @@ export function createContractPdf(dto: CreateContractDto) {
         text: [
           { text: 'SEXTA (COSTOS ADICIONALES).- ', style: 'subtitle' },
           `Adicionalmente al capital y los intereses asumidos por el deudor en base al presente documento, el deudor reconoce que tiene conocimiento y asumirá los costos por tasa de servicios por un monto de Bs.- `,
-          { text: montoTotal, decoration: 'underline' },
+          { text: totalAmount, decoration: 'underline' },
           ', que serán cancelados en ',
           { text: quantityFee, decoration: 'underline' },
           ' cuotas o durante el tiempo de duración del crédito, y los costos por recojo y devolución de la garantía que serán calculados en base a la distancia de lugar de recojo de la prenda, reservándose EL ACREEDOR el derecho de modificar precios o tarifas de acuerdo a las condiciones que lo ameriten.',
@@ -172,10 +176,10 @@ export function createContractPdf(dto: CreateContractDto) {
           { text: 'SEPTIMA (FORMA DE PAGO).- ', style: 'subtitle' },
           `EL DEUDOR se compromete a pagar y cancelar la totalidad de la obligación y los intereses generados, mediante ${quantityFee} cuotas semanales descritas de la siguiente manera:`,
           `EL DEUDOR cancelara ${quantityFee} cuotas semanales por la suma de Bs. `,
-          { text: montoTotal, decoration: 'underline' },
+          { text: totalAmount, decoration: 'underline' },
           ' (',
           {
-            text: writtenNumber(montoTotal, { lang: 'es' }),
+            text: writtenNumber(totalAmount, { lang: 'es' }),
             decoration: 'underline',
           },
           ` 00/100 Bolivianos), a partir de la firma del presente documento, debiendo cancelar la primer cuota en fecha `,
@@ -330,8 +334,35 @@ export function createContractPdf(dto: CreateContractDto) {
     // ...
   };
 
-  const pdfDoc = printer.createPdfKitDocument(docDefinition, options);
-  pdfDoc.pipe(fs.createWriteStream(filePath));
-  pdfDoc.end();
-  console.log('builded pdf');
+  return new Promise<Buffer>((resolve, _) => {
+    const pdfDoc = printer.createPdfKitDocument(docDefinition, options);
+    const chunks: any[] = [];
+    pdfDoc.on('data', function (chunk) {
+      chunks.push(chunk);
+    });
+    pdfDoc.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+    pdfDoc.end();
+  });
 }
+
+export const uploadConctract = async (dto: CreateContractDto) => {
+  const file = await createContractPdf(dto);
+  const body = new FormData();
+  body.append('file', file, { filename: 'pdf.pdf' });
+  body.append('upload_preset', 'mnzfvfae');
+  try {
+    const data = await axios.post(
+      'https://api.cloudinary.com/v1_1/dugc89lbj/image/upload',
+      body,
+      {
+        headers: body.getHeaders(),
+      },
+    );
+    return data.data['secure_url'] as string;
+  } catch (error) {
+    console.log('error', (error as any).response);
+    throw new BadRequestException('Ups ocurrio un error al subir el archivo');
+  }
+};
