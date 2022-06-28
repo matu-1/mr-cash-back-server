@@ -66,6 +66,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       dto.percentageServiceFee = CONFIG.PERCENTAGE_SERVICE_FEE.MAX;
       dto.percentageInterest = CONFIG.PERCENTAGE_INTEREST.SIX_WEEKS.PERCENTAGE;
       dto.quantityFee = CONFIG.PERCENTAGE_INTEREST.SIX_WEEKS.QUANTITY;
+      dto.deliveryAmount = CONFIG.DELIVERY_AMOUNT;
     } else {
       dto.percentageServiceFee = CONFIG.PERCENTAGE_SERVICE_FEE.MIN;
       dto.percentageInterest =
@@ -75,7 +76,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
-    dto.totalAmount = dto.originalAmount + serviceFee + interest;
+    dto.totalAmount =
+      dto.originalAmount + serviceFee + interest + dto.deliveryAmount;
     try {
       return await this.creditRepository.manager.transaction(
         async (manager) => {

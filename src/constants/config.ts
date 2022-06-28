@@ -9,7 +9,7 @@ export const CONFIG = {
   PERCENTAGE_SERVICE_FEE: {
     //Tasa Servicio
     MAX: 20, //300-999
-    MIN: 15, //1000-2000
+    MIN: 20, //1000-2000
   },
   PERCENTAGE_INTEREST: {
     //Interes
@@ -28,4 +28,5 @@ export const CONFIG = {
     MIN_AMOUNT: 300,
     MAX_AMOUNT: 2000,
   },
+  DELIVERY_AMOUNT: 30,
 };
