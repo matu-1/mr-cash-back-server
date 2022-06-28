@@ -63,4 +63,6 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.getTotalByStatus();
     return new Response(result);
   }
+
+  // TODO: COTIZAR LAS CUOTAS ENVIANDO EL original_amount Y QUE ME DEVUELVA el total_amount y qty_fee;
 }
