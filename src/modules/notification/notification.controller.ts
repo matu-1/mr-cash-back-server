@@ -47,4 +47,14 @@ export class NotificationController extends CrudController<Notification> {
     const result = await this.notificationService.update(id, dto);
     return new Response(result);
   }
+
+  @Get('count/:customerId')
+  async countNotificationUnseen(
+    @Param('customerId', ParseUUIDPipe) customerId: string,
+  ) {
+    const result = await this.notificationService.countNotificationUnseen(
+      customerId,
+    );
+    return new Response(result);
+  }
 }

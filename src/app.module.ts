@@ -15,6 +15,7 @@ import { WarrantyPhotoModule } from './modules/warranty-photo/warranty-photo.mod
 import { CreditStatusModule } from './modules/credit-status/credit-status.module';
 import { CreditFeeModule } from './modules/credit-fee/credit-fee.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { DeliveryModule } from './modules/delivery/delivery.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     CreditStatusModule,
     CreditFeeModule,
     NotificationModule,
+    DeliveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

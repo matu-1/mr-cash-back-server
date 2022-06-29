@@ -34,4 +34,11 @@ export class NotificationService extends CrudService<
     await this.customerService.findById(dto.customerId, 'Customer not found');
     return super.create(dto);
   }
+
+  async countNotificationUnseen(customerId: string) {
+    const result = await this.notificationRepository.manager.query(
+      `SELECT count(*) count FROM notification WHERE customer_id = "${customerId}" AND notification.read = 0`,
+    );
+    return result[0];
+  }
 }
