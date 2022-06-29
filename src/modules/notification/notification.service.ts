@@ -37,7 +37,7 @@ export class NotificationService extends CrudService<
 
   async countNotificationUnseen(customerId: string) {
     const result = await this.notificationRepository.manager.query(
-      `SELECT count(*) count FROM notification WHERE customer_id = "${customerId}"`,
+      `SELECT count(*) count FROM notification WHERE customer_id = "${customerId}" AND read = 0`,
     );
     return result[0];
   }
