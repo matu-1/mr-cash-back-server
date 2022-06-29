@@ -64,5 +64,11 @@ export class CreditController extends CrudController<Credit> {
     return new Response(result);
   }
 
-  // TODO: COTIZAR LAS CUOTAS ENVIANDO EL original_amount Y QUE ME DEVUELVA el total_amount y qty_fee;
+  @Get('calculate-credit/:amount')
+  async calculateCredit(@Param('amount') amount: number) {
+    const dto = new CreateCreditDto();
+    dto.originalAmount = Number(amount);
+    const result = this.creditService.calculateCredit(dto);
+    return new Response(result);
+  }
 }

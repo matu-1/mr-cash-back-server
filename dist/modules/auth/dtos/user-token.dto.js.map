@@ -1,1 +1,0 @@
-{"version":3,"file":"user-token.dto.js","sourceRoot":"","sources":["../../../../src/modules/auth/dtos/user-token.dto.ts"],"names":[],"mappings":";;;;AAAA,MAAa,YAAY;IAAzB;QACE,OAAE,GAAG,EAAE,CAAC;QACR,SAAI,GAAG,EAAE,CAAC;QACV,UAAK,GAAG,EAAE,CAAC;QACX,SAAI,GAAG,EAAE,CAAC;QAEV,gBAAW,GAAG,EAAE,CAAC;KAClB;;oEANM,EAAE,yDACA,EAAE,0DACD,EAAE,yDACH,EAAE,gEAEK,EAAE;;CACjB;AAPD,oCAOC"}
