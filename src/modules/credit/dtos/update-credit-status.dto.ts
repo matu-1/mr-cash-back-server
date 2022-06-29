@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn } from 'class-validator';
+import { IsIn, IsOptional, IsUrl } from 'class-validator';
 import { CREDIT_STATUS } from '../credit.constant';
 
 export class UpdateCreditStatusDto {
@@ -15,4 +15,7 @@ export class UpdateCreditStatusDto {
   status: number;
   @ApiProperty({ readOnly: true })
   urlContract: string;
+  @IsOptional()
+  @IsUrl()
+  urlSignature: string;
 }
