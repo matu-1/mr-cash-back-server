@@ -4,7 +4,7 @@ import { Warranty } from '../warranty/warranty.entity';
 
 @Entity()
 export class WarrantyPhoto extends BaseEntity {
-  @Column({ name: 'photo_url', length: 150 })
+  @Column({ name: 'photo_url', length: 300 })
   photoUrl: string;
   //relations
   @Column({ name: 'warranty_id' })

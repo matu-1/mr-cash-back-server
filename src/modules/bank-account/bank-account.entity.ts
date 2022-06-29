@@ -12,7 +12,7 @@ export class BankAccount extends BaseEntity {
   bankName: string;
   @Column({ length: 80, name: 'identity_number' })
   identityNumber: string;
-  @Column({ length: 10, name: 'account_type' })
+  @Column({ length: 50, name: 'account_type' })
   accountType: string;
   //relations
   @Column({ name: 'customer_id' })

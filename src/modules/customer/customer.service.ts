@@ -15,4 +15,10 @@ export class CustomerService extends CrudService<Customer, CreateCustomerDto> {
     if (!data) throw new NotFoundException('Customer not found');
     return data;
   }
+
+  async findByPhone(phone: string) {
+    const data = await this.customerRepository.findOne({ where: { phone } });
+    if (!data) throw new NotFoundException('Customer not found');
+    return data;
+  }
 }

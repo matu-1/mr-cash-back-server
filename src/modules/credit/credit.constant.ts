@@ -7,6 +7,7 @@ export const CREDIT_STATUS = {
   EXPIRED: 5,
   OFFERED: 6,
   LOST: 7,
+
   ACCEPTED: 8,
   WAITING: 9,
   COMPLETED: 10,

@@ -16,7 +16,7 @@ export class Warranty {
   @IsNotEmpty()
   status: string;
   @IsOptional()
-  @MinLength(10)
+  // @MinLength(10)
   description: string;
   @IsUUID()
   categoryId: string;
