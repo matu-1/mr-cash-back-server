@@ -2,7 +2,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsUrl,
   IsUUID,
@@ -16,7 +15,7 @@ export class Warranty {
   @IsNotEmpty()
   status: string;
   @IsOptional()
-  // @MinLength(10)
+  @MinLength(10)
   description: string;
   @IsUUID()
   categoryId: string;

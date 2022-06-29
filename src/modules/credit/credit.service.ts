@@ -221,7 +221,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           acreedorDireccion: 'Ramada Av avenida',
           acreedorNroCasa: '1255',
           deudorNombre: data.customer.name,
-          deudorCI: '15455654',
+          deudorCI: data.bankAccount.identityNumber,
           deudorExpedicion: 'SC',
           deudorDireccion: 'Plan 3000 Av. paurito',
           amount: data.originalAmount,
