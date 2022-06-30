@@ -32,7 +32,13 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
     return this.findByIdWithRelations(
       id,
-      ['customer', 'bankAccount', 'warranties', 'warranties.photos'],
+      [
+        'customer',
+        'delivery',
+        'bankAccount',
+        'warranties',
+        'warranties.photos',
+      ],
       errorMessage,
     );
   }

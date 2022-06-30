@@ -1,9 +1,17 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { BaseEntity } from '../../utils/base.entity';
 import { Customer } from '../customer/customer.entity';
 import { BankAccount } from '../bank-account/bank-account.entity';
 import { CREDIT_STATUS } from './credit.constant';
 import { Warranty } from '../warranty/warranty.entity';
+import { Delivery } from '../delivery/delivery.entity';
 
 @Entity()
 export class Credit extends BaseEntity {
@@ -58,4 +66,6 @@ export class Credit extends BaseEntity {
   creditPrevious: Credit;
   @OneToMany(() => Warranty, (warranty) => warranty.credit)
   warranties: Warranty[];
+  @OneToOne(() => Delivery, (delivery) => delivery.credit)
+  delivery: Delivery;
 }

@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsEmail, IsOptional } from 'class-validator';
 import {
   IsNotEmpty,
@@ -18,17 +19,22 @@ export class CreateCustomerDto {
   email: string;
   @IsDateString()
   birthday: string;
-  status: string;
+  @ApiProperty({ readOnly: true })
+  status: number;
   @IsNotEmpty()
   referredCode: string;
   @IsOptional()
-  profilePhotoUrl: string;
+  @IsUrl()
+  profilePhotoUrl?: string;
   @IsOptional()
-  identityFrontUrl: string;
+  @IsUrl()
+  identityFrontUrl?: string;
   @IsOptional()
-  identityBackUrl: string;
+  @IsUrl()
+  identityBackUrl?: string;
   @IsOptional()
-  tokenNotification: string;
+  @IsNotEmpty()
+  tokenNotification?: string;
   @IsNotEmpty()
   @IsUUID()
   cityId: string;
