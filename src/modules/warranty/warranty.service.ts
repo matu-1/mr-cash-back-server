@@ -50,7 +50,7 @@ export class WarrantyService extends CrudService<Warranty, CreateWarrantyDto> {
       where: {
         creditId,
       },
-      relations: ['photos'],
+      relations: ['photos', 'category'],
     });
   }
 }
