@@ -1,5 +1,5 @@
 import { BaseEntity } from 'src/utils/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Credit } from '../credit/credit.entity';
 
 @Entity()
@@ -17,7 +17,7 @@ export class Delivery extends BaseEntity {
   // relations
   @Column({ name: 'credit_id' })
   creditId: string;
-  @ManyToOne(() => Credit)
+  @OneToOne(() => Credit, (credit) => credit.delivery)
   @JoinColumn({ name: 'credit_id' })
   credit: Credit;
 }
