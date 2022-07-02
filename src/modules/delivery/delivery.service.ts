@@ -18,4 +18,12 @@ export class DeliveryService extends CrudService<Delivery, CreateDeliveryDto> {
     await this.creditService.findById(dto.creditId, 'Credit Not found');
     return super.create(dto);
   }
+
+  async findByCredit(creditId: string) {
+    await this.creditService.findById(creditId, 'Credit not found');
+    const query = this.deliveryRepository
+      .createQueryBuilder('delivery')
+      .where('delivery.creditId = :creditId', { creditId });
+    return query.getOne();
+  }
 }

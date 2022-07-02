@@ -15,8 +15,6 @@ export class CreateDeliveryDto {
   @MinLength(6)
   address: string;
   @IsOptional()
-  @IsNotEmpty()
-  @MinLength(6)
   reference: string;
   @IsNumber()
   amount: number;

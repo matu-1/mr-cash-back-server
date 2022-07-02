@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../utils/base.entity';
 import { Customer } from '../customer/customer.entity';
-import { CONFIG } from '../../constants/config';
+import { COUPON_STATUS } from './coupon.constants';
 
 @Entity()
 export class Coupon extends BaseEntity {
@@ -9,7 +9,7 @@ export class Coupon extends BaseEntity {
   name: string;
   @Column({ type: 'text', nullable: true })
   description: string;
-  @Column({ type: 'tinyint', default: CONFIG.STATUS.ENABLED })
+  @Column({ type: 'tinyint', default: COUPON_STATUS.ENABLED })
   status: number;
   @Column({ type: 'decimal', precision: 16, scale: 2 })
   amount: number;
