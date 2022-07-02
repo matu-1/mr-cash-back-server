@@ -202,7 +202,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     )
       throw new BadRequestException(message);
     return this.creditRepository.manager.transaction(async (manager) => {
-      if (dto.status === CREDIT_STATUS.APPROVED) {
+      if (dto.status === CREDIT_STATUS.ACCEPTED) {
         const fees = await this.createFees(data, manager);
         const contractDto: CreateContractDto = {
           nit: '28555652655',
@@ -260,36 +260,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     return manager.save(CreditFee, creditFees);
   }
 
-  async getTotalByStatus() {
-    const credits = await this.findAll();
-    const res = {
-      active: 0,
-      expired: 0,
-      canceled: 0,
-      complete: 0,
-    };
-    credits.forEach((credit) => {
-      switch (credit.status) {
-        case CREDIT_STATUS.EXPIRED:
-          res.expired++;
-          break;
-        case CREDIT_STATUS.COMPLETED:
-          res.complete++;
-          break;
-        case CREDIT_STATUS.CANCELLED:
-        case CREDIT_STATUS.REJECTED:
-          res.canceled++;
-          break;
-        case CREDIT_STATUS.APPROVED:
-          res.active++;
-          break;
-        default:
-          break;
-      }
-    });
-    return res;
-  }
-
   calculateCredit(dto: CreateCreditDto) {
     if (dto.originalAmount >= 300 && dto.originalAmount <= 999) {
       dto.percentageServiceFee = CONFIG.PERCENTAGE_SERVICE_FEE.MAX;
@@ -309,5 +279,71 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       dto.originalAmount + serviceFee + interest + dto.deliveryAmount;
 
     return dto;
+  }
+
+  async getQualityIndicators() {
+    const month = new Date().getMonth() + 1;
+    const averageAmountPromise = this.creditRepository.manager.query(
+      `
+        select ROUND(avg(c.total_amount), 2) as averageAmount 
+        from credit c where month(c.created_at) = ?
+        and c.status = ? or c.status = ?
+        `,
+      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const activedCustomerPromise = this.creditRepository.manager.query(
+      `
+        select count(distinct c.id) as activedCustomers
+        from customer c 
+        inner join credit cd on cd.customer_id = c.id
+        where month(c.created_at) = ?
+        and cd.status = ? or cd.status = ?
+      `,
+      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const quantityCreditPromise = this.creditRepository.manager.query(
+      `
+        select count(*) as quantityCredits
+        from credit c where month(c.created_at) = ?
+        and c.status = ? or c.status = ?
+      `,
+      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const registeredCustomerPromise = this.creditRepository.manager.query(
+      `
+        select count(*) as registeredCustomers
+        from customer c 
+        where month(c.created_at) = ?
+      `,
+      [month],
+    );
+    const originalAmountPromise = this.creditRepository.manager.query(
+      `
+        select sum(c.original_amount) as originalAmount 
+        from credit c where month(c.created_at) = ?
+        and c.status = ? or c.status = ?
+        `,
+      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const [
+      averageAmount,
+      activedCustomer,
+      quantityCredit,
+      registeredCustomer,
+      originalAmount,
+    ] = await Promise.all([
+      averageAmountPromise,
+      activedCustomerPromise,
+      quantityCreditPromise,
+      registeredCustomerPromise,
+      originalAmountPromise,
+    ]);
+    return {
+      ...averageAmount[0],
+      ...activedCustomer[0],
+      ...quantityCredit[0],
+      ...registeredCustomer[0],
+      ...originalAmount[0],
+    };
   }
 }
