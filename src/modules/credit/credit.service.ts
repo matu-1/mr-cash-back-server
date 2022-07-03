@@ -288,7 +288,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         select ROUND(avg(c.total_amount), 2) as averageAmount 
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
-        `,
+      `,
       [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
     );
     const activedCustomerPromise = this.creditRepository.manager.query(
@@ -322,7 +322,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         select sum(c.original_amount) as originalAmount 
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
-        `,
+      `,
       [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
     );
     const [
@@ -344,6 +344,77 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       ...quantityCredit[0],
       ...registeredCustomer[0],
       ...originalAmount[0],
+    };
+  }
+
+  async getQualityIndicatorsAnnual() {
+    const year = new Date().getFullYear();
+    const averageAmountPromise = this.creditRepository.manager.query(
+      `
+        select month(c.created_at) as month, ROUND(avg(c.total_amount), 2) as averageAmount 
+        from credit c where year(c.created_at) = ?
+        and c.status = ? or c.status = ?
+        group by month(c.created_at)
+      `,
+      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const activedCustomerPromise = this.creditRepository.manager.query(
+      `
+        select month(c.created_at) as month, count(distinct c.id) as activedCustomers
+        from customer c 
+        inner join credit cd on cd.customer_id = c.id
+        where year(c.created_at) = ?
+        and cd.status = ? or cd.status = ?
+        group by month(c.created_at)
+      `,
+      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const quantityCreditPromise = this.creditRepository.manager.query(
+      `
+        select month(c.created_at) as month, count(*) as quantityCredits
+        from credit c where year(c.created_at) = ?
+        and c.status = ? or c.status = ?
+        group by month(c.created_at)
+      `,
+      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const registeredCustomerPromise = this.creditRepository.manager.query(
+      `
+        select month(c.created_at) as month, count(*) as registeredCustomers
+        from customer c 
+        where year(c.created_at) = ?
+        group by month(c.created_at)
+      `,
+      [year],
+    );
+    const originalAmountPromise = this.creditRepository.manager.query(
+      `
+        select month(c.created_at) as month, sum(c.original_amount) as originalAmount 
+        from credit c where year(c.created_at) = ?
+        and c.status = ? or c.status = ?
+        group by month(c.created_at)
+      `,
+      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+    );
+    const [
+      averageAmount,
+      activedCustomer,
+      quantityCredit,
+      registeredCustomer,
+      originalAmount,
+    ] = await Promise.all([
+      averageAmountPromise,
+      activedCustomerPromise,
+      quantityCreditPromise,
+      registeredCustomerPromise,
+      originalAmountPromise,
+    ]);
+    return {
+      averageAmount,
+      activedCustomer,
+      quantityCredit,
+      registeredCustomer,
+      originalAmount,
     };
   }
 }

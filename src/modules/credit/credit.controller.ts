@@ -71,4 +71,13 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.getQualityIndicators();
     return new Response(result);
   }
+
+  @ApiOperation({
+    summary: 'Get quality Indicators',
+  })
+  @Get('quality-indicators-annual')
+  async getQualityIndicatorsAnnual() {
+    const result = await this.creditService.getQualityIndicatorsAnnual();
+    return new Response(result);
+  }
 }
