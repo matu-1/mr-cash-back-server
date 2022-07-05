@@ -29,6 +29,15 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     super(creditRepository);
   }
 
+  async findAllByRange(start: Date, end: Date) {
+    return super.findAllByRange(
+      start,
+      end,
+      ['customer'],
+      ['g', 'customer.id', 'customer.tokenNotification'],
+    );
+  }
+
   async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
     return this.findByIdWithRelations(
       id,
@@ -351,7 +360,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const year = new Date().getFullYear();
     const averageAmountPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, ROUND(avg(c.total_amount), 2) as averageAmount 
+        select month(c.created_at) as month, ROUND(avg(c.total_amount), 2) as value 
         from credit c where year(c.created_at) = ?
         and c.status = ? or c.status = ?
         group by month(c.created_at)
@@ -360,7 +369,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
     const activedCustomerPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, count(distinct c.id) as activedCustomers
+        select month(c.created_at) as month, count(distinct c.id) as value
         from customer c 
         inner join credit cd on cd.customer_id = c.id
         where year(c.created_at) = ?
@@ -371,7 +380,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
     const quantityCreditPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, count(*) as quantityCredits
+        select month(c.created_at) as month, count(*) as value
         from credit c where year(c.created_at) = ?
         and c.status = ? or c.status = ?
         group by month(c.created_at)
@@ -380,7 +389,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
     const registeredCustomerPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, count(*) as registeredCustomers
+        select month(c.created_at) as month, count(*) as value
         from customer c 
         where year(c.created_at) = ?
         group by month(c.created_at)
@@ -389,7 +398,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
     const originalAmountPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, sum(c.original_amount) as originalAmount 
+        select month(c.created_at) as month, sum(c.original_amount) as value 
         from credit c where year(c.created_at) = ?
         and c.status = ? or c.status = ?
         group by month(c.created_at)
