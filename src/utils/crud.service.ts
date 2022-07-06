@@ -16,7 +16,12 @@ export abstract class CrudService<
     } as any);
   }
 
-  async findAllByRange(start: Date, end: Date, relations?: string[]) {
+  async findAllByRange(
+    start: Date,
+    end: Date,
+    relations?: string[],
+    select?: string[],
+  ) {
     console.log('start:', start);
     console.log('end:', end);
     let query = this.repository
@@ -25,6 +30,7 @@ export abstract class CrudService<
     relations?.forEach((relation) => {
       query = query.leftJoinAndSelect(`g.${relation}`, relation);
     });
+    if (select) query = query.select(select);
     return await query.orderBy('g.createdAt', 'DESC').getMany();
   }
 

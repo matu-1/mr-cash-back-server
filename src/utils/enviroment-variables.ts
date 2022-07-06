@@ -9,4 +9,5 @@ export interface EnviromentVariables {
   JWT_EXPIRES_IN: string;
   JWT_MOBILE_EXPIRTES_IN: string;
   TZ: string;
+  NOTIFICATION_KEY: string;
 }

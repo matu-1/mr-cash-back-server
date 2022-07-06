@@ -15,6 +15,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateNotificationDto } from './dtos/create-notification.dto';
 import { Response } from 'src/utils/response';
 import { UpdateNotificationDto } from './dtos/update-notification.dto';
+import { SendNotification } from './dtos/send-notification.dto';
 
 @ApiTags('Notification')
 @Controller('notification')
@@ -55,6 +56,12 @@ export class NotificationController extends CrudController<Notification> {
     const result = await this.notificationService.countNotificationUnseen(
       customerId,
     );
+    return new Response(result);
+  }
+
+  @Post('send-notification')
+  async sendNotification(@Body() dto: SendNotification) {
+    const result = await this.notificationService.sendNotification(dto);
     return new Response(result);
   }
 }

@@ -55,20 +55,38 @@ export class CreditController extends CrudController<Credit> {
     return new Response(result);
   }
 
+  @Get('calculate-credit/:amount')
+  async calculateCredit(@Param('amount') amount: number) {
+    const dto = new CreateCreditDto();
+    dto.originalAmount = Number(amount);
+    const result = this.creditService.calculateCredit(dto);
+    return new Response(result);
+  }
+
+  @ApiOperation({
+    summary: 'Get quality Indicators',
+  })
+  @Get('quality-indicators')
+  async getQualityIndicators() {
+    const result = await this.creditService.getQualityIndicators();
+    return new Response(result);
+  }
+
+  @ApiOperation({
+    summary: 'Get quality Indicators',
+  })
+  @Get('quality-indicators-annual')
+  async getQualityIndicatorsAnnual() {
+    const result = await this.creditService.getQualityIndicatorsAnnual();
+    return new Response(result);
+  }
+
   @ApiOperation({
     summary: 'Get Total by Status (Active, Canceled, Expired, Complete)',
   })
   @Get('total-by-status')
   async getTotalByStatus() {
     const result = await this.creditService.getTotalByStatus();
-    return new Response(result);
-  }
-
-  @Get('calculate-credit/:amount')
-  async calculateCredit(@Param('amount') amount: number) {
-    const dto = new CreateCreditDto();
-    dto.originalAmount = Number(amount);
-    const result = this.creditService.calculateCredit(dto);
     return new Response(result);
   }
 }

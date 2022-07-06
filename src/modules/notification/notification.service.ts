@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CrudService } from '../../utils/crud.service';
 import { Notification } from './notification.entity';
 import { NotificationRepository } from './notification.repository';
 import { CreateNotificationDto } from './dtos/create-notification.dto';
 import { CustomerService } from '../customer/customer.service';
+import { SendNotification } from './dtos/send-notification.dto';
+import { ConfigService } from '@nestjs/config';
+import { EnviromentVariables } from 'src/utils/enviroment-variables';
+import axios from 'axios';
+import { ResponseNotification } from './interfaces/responseNotification';
 
 @Injectable()
 export class NotificationService extends CrudService<
@@ -13,6 +18,7 @@ export class NotificationService extends CrudService<
   constructor(
     private notificationRepository: NotificationRepository,
     private customerService: CustomerService,
+    private configService: ConfigService<EnviromentVariables>,
   ) {
     super(notificationRepository);
   }
@@ -40,5 +46,27 @@ export class NotificationService extends CrudService<
       `SELECT count(*) count FROM notification WHERE customer_id = "${customerId}" AND notification.read = 0`,
     );
     return result[0];
+  }
+
+  async sendNotification(dto: SendNotification) {
+    const url = 'https://fcm.googleapis.com/fcm/send';
+    const { data } = await axios.post<ResponseNotification>(
+      url,
+      {
+        to: dto.to,
+        notification: {
+          body: dto.body,
+          title: dto.title,
+        },
+        data: dto.data,
+      },
+      {
+        headers: {
+          Authorization: `key=${this.configService.get('NOTIFICATION_KEY')}`,
+        },
+      },
+    );
+    if (!data.success) throw new BadRequestException(data.results[0].error);
+    return data;
   }
 }
