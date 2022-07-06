@@ -426,4 +426,34 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       originalAmount,
     };
   }
+
+  async getTotalByStatus() {
+    const credits = await this.findAll();
+    const res = {
+      active: 0,
+      expired: 0,
+      canceled: 0,
+      complete: 0,
+    };
+    credits.forEach((credit) => {
+      switch (credit.status) {
+        case CREDIT_STATUS.EXPIRED:
+          res.expired++;
+          break;
+        case CREDIT_STATUS.COMPLETED:
+          res.complete++;
+          break;
+        case CREDIT_STATUS.CANCELLED:
+        case CREDIT_STATUS.REJECTED:
+          res.canceled++;
+          break;
+        case CREDIT_STATUS.APPROVED:
+          res.active++;
+          break;
+        default:
+          break;
+      }
+    });
+    return res;
+  }
 }
