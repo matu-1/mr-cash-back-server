@@ -36,6 +36,12 @@ export abstract class DateUtils {
       ),
     );
   }
+
+  static addDays(date: string | Date, days: number) {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+  }
 }
 const nDate = new Date().toLocaleString('es-ES', {
   timeZone: 'UTC',

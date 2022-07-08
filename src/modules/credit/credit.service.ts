@@ -18,6 +18,7 @@ import { EntityManager } from 'typeorm';
 import { CreateCreditFee } from '../credit-fee/interfaces/credit-fee.interface';
 import { CreateContractDto } from './utils/create-pdf';
 import { uploadConctract } from './utils/create-pdf';
+import { DateUtils } from '../../utils/date';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -168,29 +169,29 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     if (
       data.status == CREDIT_STATUS.PENDING &&
       dto.status != CREDIT_STATUS.CANCELLED &&
-      dto.status != CREDIT_STATUS.ACCEPTED
+      dto.status != CREDIT_STATUS.PREAPPROVED
     )
       throw new BadRequestException(message);
     if (
-      data.status == CREDIT_STATUS.ACCEPTED &&
+      data.status == CREDIT_STATUS.PREAPPROVED &&
       dto.status != CREDIT_STATUS.WAITING &&
       dto.status != CREDIT_STATUS.CANCELLED
     )
       throw new BadRequestException(message);
     if (
       data.status == CREDIT_STATUS.WAITING &&
-      dto.status != CREDIT_STATUS.PREAPPROVED &&
-      dto.status != CREDIT_STATUS.CANCELLED
-    )
-      throw new BadRequestException(message);
-    if (
-      data.status == CREDIT_STATUS.PREAPPROVED &&
       dto.status != CREDIT_STATUS.APPROVED &&
       dto.status != CREDIT_STATUS.CANCELLED
     )
       throw new BadRequestException(message);
     if (
       data.status == CREDIT_STATUS.APPROVED &&
+      dto.status != CREDIT_STATUS.DISBURSED &&
+      dto.status != CREDIT_STATUS.CANCELLED
+    )
+      throw new BadRequestException(message);
+    if (
+      data.status == CREDIT_STATUS.DISBURSED &&
       dto.status != CREDIT_STATUS.EXPIRED &&
       dto.status != CREDIT_STATUS.CANCELLED &&
       data.status == CREDIT_STATUS.COMPLETED
@@ -200,7 +201,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       data.status == CREDIT_STATUS.OFFERED &&
       dto.status != CREDIT_STATUS.REJECTED &&
       dto.status != CREDIT_STATUS.CANCELLED &&
-      dto.status != CREDIT_STATUS.ACCEPTED
+      dto.status != CREDIT_STATUS.PREAPPROVED
     )
       throw new BadRequestException(message);
     if (
@@ -211,7 +212,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     )
       throw new BadRequestException(message);
     return this.creditRepository.manager.transaction(async (manager) => {
-      if (dto.status === CREDIT_STATUS.ACCEPTED) {
+      if (dto.status === CREDIT_STATUS.PREAPPROVED) {
         const fees = await this.createFees(data, manager);
         const contractDto: CreateContractDto = {
           nit: '28555652655',
@@ -239,6 +240,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           creationDate: new Date(),
         };
         dto.urlContract = await uploadConctract(contractDto);
+      }
+      if (dto.status == CREDIT_STATUS.APPROVED) {
+        dto.disburseAt = DateUtils.addDays(
+          new Date(),
+          data.expressDisbursement ? 1 : 2,
+        );
       }
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
@@ -286,7 +293,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
     dto.totalAmount =
       dto.originalAmount + serviceFee + interest + dto.deliveryAmount;
-
+    if (dto.expressDisbursement)
+      dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
     return dto;
   }
 
@@ -298,7 +306,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
       `,
-      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [month, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const activedCustomerPromise = this.creditRepository.manager.query(
       `
@@ -308,7 +316,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         where month(c.created_at) = ?
         and cd.status = ? or cd.status = ?
       `,
-      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [month, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const quantityCreditPromise = this.creditRepository.manager.query(
       `
@@ -316,7 +324,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
       `,
-      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [month, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const registeredCustomerPromise = this.creditRepository.manager.query(
       `
@@ -332,7 +340,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
       `,
-      [month, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [month, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const [
       averageAmount,
@@ -365,7 +373,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         and c.status = ? or c.status = ?
         group by month(c.created_at)
       `,
-      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [year, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const activedCustomerPromise = this.creditRepository.manager.query(
       `
@@ -376,7 +384,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         and cd.status = ? or cd.status = ?
         group by month(c.created_at)
       `,
-      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [year, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const quantityCreditPromise = this.creditRepository.manager.query(
       `
@@ -385,7 +393,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         and c.status = ? or c.status = ?
         group by month(c.created_at)
       `,
-      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [year, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const registeredCustomerPromise = this.creditRepository.manager.query(
       `
@@ -403,7 +411,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         and c.status = ? or c.status = ?
         group by month(c.created_at)
       `,
-      [year, CREDIT_STATUS.APPROVED, CREDIT_STATUS.COMPLETED],
+      [year, CREDIT_STATUS.DISBURSED, CREDIT_STATUS.COMPLETED],
     );
     const [
       averageAmount,
@@ -447,7 +455,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         case CREDIT_STATUS.REJECTED:
           res.canceled++;
           break;
-        case CREDIT_STATUS.APPROVED:
+        case CREDIT_STATUS.DISBURSED:
           res.active++;
           break;
         default:

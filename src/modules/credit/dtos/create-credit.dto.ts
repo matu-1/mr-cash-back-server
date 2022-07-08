@@ -41,6 +41,8 @@ export class CreateCreditDto {
   bankAccountId: string;
   @ApiProperty({ readOnly: true })
   creditPreviousId: string;
+  @IsIn([0, 1])
+  expressDisbursement: number;
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })

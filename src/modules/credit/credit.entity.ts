@@ -48,6 +48,10 @@ export class Credit extends BaseEntity {
   urlContract: string;
   @Column({ name: 'url_signature', nullable: true })
   urlSignature: string;
+  @Column({ name: 'disburse_at', nullable: true })
+  disburseAt: Date;
+  @Column({ name: 'express_disbursement', default: 0, type: 'tinyint' })
+  expressDisbursement: number;
   //relations
   @Column({ name: 'customer_id' })
   customerId: string;

@@ -5,10 +5,10 @@ import { CREDIT_STATUS } from '../credit.constant';
 export class UpdateCreditStatusDto {
   @IsIn([
     CREDIT_STATUS.CANCELLED,
-    CREDIT_STATUS.ACCEPTED,
-    CREDIT_STATUS.WAITING,
     CREDIT_STATUS.PREAPPROVED,
+    CREDIT_STATUS.WAITING,
     CREDIT_STATUS.APPROVED,
+    CREDIT_STATUS.DISBURSED,
     CREDIT_STATUS.EXPIRED,
     CREDIT_STATUS.REJECTED,
   ])
@@ -18,4 +18,6 @@ export class UpdateCreditStatusDto {
   @IsOptional()
   @IsUrl()
   urlSignature: string;
+  @ApiProperty({ readOnly: true })
+  disburseAt: Date;
 }

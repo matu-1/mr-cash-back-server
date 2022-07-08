@@ -29,4 +29,5 @@ export const CONFIG = {
     MAX_AMOUNT: 2000,
   },
   DELIVERY_AMOUNT: 30,
+  EXPRESS_DISBURSEMENT: 35,
 };

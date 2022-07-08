@@ -32,6 +32,8 @@ export class CreditFee extends BaseEntity {
   paymentDate: Date;
   @Column({ name: 'paid_at', nullable: true })
   paidAt: Date;
+  @Column({ name: 'photo_url', nullable: true })
+  photoUrl: string;
   //relations
   @Column({ name: 'credit_id' })
   creditId: string;
