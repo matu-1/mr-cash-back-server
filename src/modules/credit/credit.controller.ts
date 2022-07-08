@@ -89,4 +89,13 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.getTotalByStatus();
     return new Response(result);
   }
+
+  @ApiOperation({
+    summary: 'Get liquidated warranties (Expired)',
+  })
+  @Get('liquidated-warranties')
+  async getLiquidatedWarranties() {
+    const result = await this.creditService.getLiquidatedWarranties();
+    return new Response(result);
+  }
 }
