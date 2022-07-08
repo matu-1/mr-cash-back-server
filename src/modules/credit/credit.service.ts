@@ -464,4 +464,13 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     });
     return res;
   }
+
+  async getLiquidatedWarranties() {
+    return await this.creditRepository.find({
+      where: {
+        status: CREDIT_STATUS.EXPIRED,
+      },
+      relations: ['customer'],
+    });
+  }
 }
