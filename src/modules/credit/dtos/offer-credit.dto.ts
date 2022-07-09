@@ -8,6 +8,7 @@ export class OfferCreditDto extends OmitType(CreateCreditDto, [
   'customerId',
   'bankAccountId',
   'plan',
+  'expressDisbursement',
   'warranties',
 ]) {
   @IsUUID()
