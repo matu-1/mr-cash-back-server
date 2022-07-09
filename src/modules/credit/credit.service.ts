@@ -263,10 +263,14 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const creditFees: CreateCreditFee[] = [];
     const amount = credit.totalAmount / credit.quantityFee;
     let today = new Date();
-    const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
+    // const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
     for (let index = 1; index <= credit.quantityFee; index++) {
       today = new Date(today);
-      today.setDate(today.getDate() + offsetDay);
+      if (credit.plan == PLAN.WEEKLY) {
+        today.setDate(today.getDate() + 7);
+      } else {
+        today.setMonth(today.getMonth() + 1);
+      }
       creditFees.push({
         creditId: credit.id,
         amount,
@@ -279,14 +283,21 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   calculateCredit(dto: CreateCreditDto) {
     if (dto.originalAmount >= 300 && dto.originalAmount <= 999) {
       dto.percentageServiceFee = CONFIG.PERCENTAGE_SERVICE_FEE.MAX;
-      dto.percentageInterest = CONFIG.PERCENTAGE_INTEREST.SIX_WEEKS.PERCENTAGE;
-      dto.quantityFee = CONFIG.PERCENTAGE_INTEREST.SIX_WEEKS.QUANTITY;
+      dto.percentageInterest =
+        CONFIG.PERCENTAGE_INTEREST.EIGHT_WEEKS.PERCENTAGE;
+      dto.quantityFee =
+        dto.plan == PLAN.WEEKLY
+          ? CONFIG.PERCENTAGE_INTEREST.EIGHT_WEEKS.QUANTITY
+          : CONFIG.PERCENTAGE_INTEREST.TWO_MONTHS.QUANTITY;
       dto.deliveryAmount = CONFIG.DELIVERY_AMOUNT;
     } else {
       dto.percentageServiceFee = CONFIG.PERCENTAGE_SERVICE_FEE.MIN;
       dto.percentageInterest =
-        CONFIG.PERCENTAGE_INTEREST.EIGHT_WEEKS.PERCENTAGE;
-      dto.quantityFee = CONFIG.PERCENTAGE_INTEREST.EIGHT_WEEKS.QUANTITY;
+        CONFIG.PERCENTAGE_INTEREST.TWELVE_WEEKS.PERCENTAGE;
+      dto.quantityFee =
+        dto.plan == PLAN.WEEKLY
+          ? CONFIG.PERCENTAGE_INTEREST.TWELVE_WEEKS.QUANTITY
+          : CONFIG.PERCENTAGE_INTEREST.THREE_MONTHS.QUANTITY;
       dto.deliveryAmount = 0;
     }
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;

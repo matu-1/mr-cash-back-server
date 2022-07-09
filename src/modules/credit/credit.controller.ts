@@ -55,10 +55,14 @@ export class CreditController extends CrudController<Credit> {
     return new Response(result);
   }
 
-  @Get('calculate-credit/:amount')
-  async calculateCredit(@Param('amount') amount: number) {
+  @Get('calculate-credit/:plan/:amount')
+  async calculateCredit(
+    @Param('plan') plan: number,
+    @Param('amount') amount: number,
+  ) {
     const dto = new CreateCreditDto();
     dto.originalAmount = Number(amount);
+    dto.plan = Number(plan);
     const result = this.creditService.calculateCredit(dto);
     return new Response(result);
   }

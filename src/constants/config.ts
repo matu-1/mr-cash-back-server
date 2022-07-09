@@ -12,16 +12,21 @@ export const CONFIG = {
     MIN: 20, //1000-2000
   },
   PERCENTAGE_INTEREST: {
-    //Interes
-    SIX_WEEKS: {
-      //6 semanas
-      PERCENTAGE: 4.5,
-      QUANTITY: 6,
-    },
     EIGHT_WEEKS: {
-      //8 semanas
-      PERCENTAGE: 6,
+      PERCENTAGE: 4.5,
       QUANTITY: 8,
+    },
+    TWELVE_WEEKS: {
+      PERCENTAGE: 6,
+      QUANTITY: 12,
+    },
+    TWO_MONTHS: {
+      PERCENTAGE: 4.5,
+      QUANTITY: 2,
+    },
+    THREE_MONTHS: {
+      PERCENTAGE: 6,
+      QUANTITY: 3,
     },
   },
   CREDIT: {
