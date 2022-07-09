@@ -173,10 +173,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   async changeStatus(id: string, dto: UpdateCreditStatusDto, userId: string) {
     const data = await this.findById(id);
     const message = `Can't change state ${data.status} to ${dto.status}`;
-    if (dto.status == CREDIT_STATUS.APPROVED && !dto.approvedPhotoUrl)
-      throw new BadRequestException(`approvedPhotoUrl is required`);
-    if (dto.status == CREDIT_STATUS.DISBURSED && !dto.disbursementPhotoUrl)
-      throw new BadRequestException(`disbursementPhotoUrl is required`);
     if (
       data.status == CREDIT_STATUS.PENDING &&
       dto.status != CREDIT_STATUS.CANCELLED &&
@@ -222,6 +218,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       data.status == CREDIT_STATUS.COMPLETED
     )
       throw new BadRequestException(message);
+
+    if (dto.status == CREDIT_STATUS.APPROVED && !dto.approvedPhotoUrl)
+      throw new BadRequestException(`approvedPhotoUrl is required`);
+    if (dto.status == CREDIT_STATUS.DISBURSED && !dto.disbursementPhotoUrl)
+      throw new BadRequestException(`disbursementPhotoUrl is required`);
+
     return this.creditRepository.manager.transaction(async (manager) => {
       if (dto.status === CREDIT_STATUS.PREAPPROVED) {
         const fees = await this.createFees(data, manager);
