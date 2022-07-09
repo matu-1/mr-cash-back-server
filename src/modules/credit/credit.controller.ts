@@ -16,6 +16,7 @@ import { Response } from '../../utils/response';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { Query } from '@nestjs/common';
+import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -35,14 +36,14 @@ export class CreditController extends CrudController<Credit> {
   }
 
   @Post()
-  async create(@Body() dto: CreateCreditDto) {
-    const result = await this.creditService.create(dto);
+  async create(@Body() dto: CreateCreditDto, @User('id') userId: string) {
+    const result = await this.creditService.create(dto, userId);
     return new Response(result);
   }
 
   @Post('offer')
-  async offer(@Body() dto: OfferCreditDto) {
-    const result = await this.creditService.offer(dto);
+  async offer(@Body() dto: OfferCreditDto, @User('id') userId: string) {
+    const result = await this.creditService.offer(dto, userId);
     return new Response(result);
   }
 
@@ -50,8 +51,9 @@ export class CreditController extends CrudController<Credit> {
   async changeStatus(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCreditStatusDto,
+    @User('id') userId: string,
   ) {
-    const result = await this.creditService.changeStatus(id, dto);
+    const result = await this.creditService.changeStatus(id, dto, userId);
     return new Response(result);
   }
 

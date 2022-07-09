@@ -52,6 +52,10 @@ export class Credit extends BaseEntity {
   disburseAt: Date;
   @Column({ name: 'express_disbursement', default: 0, type: 'tinyint' })
   expressDisbursement: number;
+  @Column({ name: 'approved_photo_url', nullable: true })
+  approvedPhotoUrl: string;
+  @Column({ name: 'disbursement_photo_url', nullable: true })
+  disbursementPhotoUrl: string;
   //relations
   @Column({ name: 'customer_id' })
   customerId: string;

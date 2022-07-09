@@ -68,35 +68,42 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
 
   async create(
     dto: CreateCreditDto,
+    userId?: string,
     creditStatus: number = CREDIT_STATUS.PENDING,
   ) {
-    await this.customerService.findById(
-      dto.customerId,
-      'The customer does not exist',
-    );
-    await this.bankAccountService.findById(
-      dto.bankAccountId,
-      'The bank Account does not exist',
-    );
+    await Promise.all([
+      this.customerService.findById(
+        dto.customerId,
+        'The customer does not exist',
+      ),
+      this.bankAccountService.findById(
+        dto.bankAccountId,
+        'The bank Account does not exist',
+      ),
+    ]);
     this.calculateCredit(dto);
     try {
       return await this.creditRepository.manager.transaction(
         async (manager) => {
           dto.status = creditStatus;
           if ((dto as any).id) {
-            await manager.save(Credit, {
-              id: (dto as any).id,
-              status: CREDIT_STATUS.LOST,
-            });
-            await manager.save(CreditStatus, {
-              status: CREDIT_STATUS.LOST,
-              creditId: (dto as any).id,
-            });
+            await Promise.all([
+              manager.save(Credit, {
+                id: (dto as any).id,
+                status: CREDIT_STATUS.LOST,
+              }),
+              manager.save(CreditStatus, {
+                status: CREDIT_STATUS.LOST,
+                userId,
+                creditId: (dto as any).id,
+              }),
+            ]);
             delete (dto as any).id;
           }
           const credit = await manager.save(Credit, dto);
           await manager.save(CreditStatus, {
             status: creditStatus,
+            userId,
             creditId: credit.id,
           });
           for (let i = 0; i < dto.warranties.length; i++) {
@@ -122,7 +129,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
   }
 
-  async offer({ id, ...dto }: OfferCreditDto) {
+  async offer({ id, ...dto }: OfferCreditDto, userId: string) {
     const credit = await this.findById(id, 'The credit does not exist');
     if (
       credit.status == CREDIT_STATUS.LOST ||
@@ -159,11 +166,11 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       }),
     };
     body.creditPreviousId = id;
-    const data = await this.create(body, CREDIT_STATUS.OFFERED);
+    const data = await this.create(body, userId, CREDIT_STATUS.OFFERED);
     return data;
   }
 
-  async changeStatus(id: string, dto: UpdateCreditStatusDto) {
+  async changeStatus(id: string, dto: UpdateCreditStatusDto, userId: string) {
     const data = await this.findById(id);
     const message = `Can't change state ${data.status} to ${dto.status}`;
     if (
@@ -250,6 +257,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
+          userId,
           creditId: id,
         }),
         manager.save(Credit, { id, ...dto }),
