@@ -15,9 +15,18 @@ export class UpdateCreditStatusDto {
   status: number;
   @ApiProperty({ readOnly: true })
   urlContract: string;
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsUrl()
   urlSignature: string;
   @ApiProperty({ readOnly: true })
   disburseAt: Date;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsUrl()
+  approvedPhotoUrl?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsUrl()
+  disbursementPhotoUrl?: string;
 }
