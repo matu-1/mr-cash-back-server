@@ -218,6 +218,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       data.status == CREDIT_STATUS.COMPLETED
     )
       throw new BadRequestException(message);
+
+    if (dto.status == CREDIT_STATUS.APPROVED && !dto.approvedPhotoUrl)
+      throw new BadRequestException(`approvedPhotoUrl is required`);
+    if (dto.status == CREDIT_STATUS.DISBURSED && !dto.disbursementPhotoUrl)
+      throw new BadRequestException(`disbursementPhotoUrl is required`);
+
     return this.creditRepository.manager.transaction(async (manager) => {
       if (dto.status === CREDIT_STATUS.PREAPPROVED) {
         const fees = await this.createFees(data, manager);
@@ -491,5 +497,16 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       },
       relations: ['customer'],
     });
+  }
+
+  async getEarnings(start: Date, end: Date) {
+    return await this.creditRepository
+      .createQueryBuilder('cr')
+      .where('cr.status = :status and cr.createdAt BETWEEN :start and :end', {
+        status: CREDIT_STATUS.COMPLETED,
+        start,
+        end,
+      })
+      .getMany();
   }
 }

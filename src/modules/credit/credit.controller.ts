@@ -17,6 +17,7 @@ import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { Query } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
+import { DateUtils } from 'src/utils/date';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -102,6 +103,17 @@ export class CreditController extends CrudController<Credit> {
   @Get('liquidated-warranties')
   async getLiquidatedWarranties() {
     const result = await this.creditService.getLiquidatedWarranties();
+    return new Response(result);
+  }
+
+  @ApiOperation({
+    summary: 'Get earnings',
+  })
+  @Get('earnings')
+  async getEarnings(@Query('start') start: string, @Query('end') end: string) {
+    const startDate = start ? new Date(start) : DateUtils.getMinToday();
+    const endDate = end ? new Date(end) : DateUtils.getMaxToday();
+    const result = await this.creditService.getEarnings(startDate, endDate);
     return new Response(result);
   }
 }
