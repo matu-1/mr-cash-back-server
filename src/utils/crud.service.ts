@@ -22,8 +22,6 @@ export abstract class CrudService<
     relations?: string[],
     select?: string[],
   ) {
-    console.log('start:', start);
-    console.log('end:', end);
     let query = this.repository
       .createQueryBuilder('g')
       .where('g.createdAt BETWEEN :start and :end', { start, end });

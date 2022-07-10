@@ -487,4 +487,15 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       relations: ['customer'],
     });
   }
+
+  async getEarnings(start: Date, end: Date) {
+    return await this.creditRepository
+      .createQueryBuilder('cr')
+      .where('cr.status = :status and cr.createdAt BETWEEN :start and :end', {
+        status: CREDIT_STATUS.COMPLETED,
+        start,
+        end,
+      })
+      .getMany();
+  }
 }
