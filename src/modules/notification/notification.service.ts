@@ -49,15 +49,14 @@ export class NotificationService extends CrudService<
   }
 
   async sendNotification(dto: SendNotification) {
+    const {title, body, customerId} = dto;
     const url = 'https://fcm.googleapis.com/fcm/send';
+    await this.create({title, body, customerId, read: 0});
     const { data } = await axios.post<ResponseNotification>(
       url,
       {
         to: dto.to,
-        notification: {
-          body: dto.body,
-          title: dto.title,
-        },
+        notification: { body, title },
         data: dto.data,
       },
       {
