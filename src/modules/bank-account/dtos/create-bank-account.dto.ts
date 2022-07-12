@@ -12,6 +12,10 @@ export class CreateBankAccountDto {
   identityNumber: string;
   @IsNotEmpty()
   accountType: string;
+  @IsNotEmpty()
+  extension: string;
+  @IsNotEmpty()
+  address: string;
   @IsUUID()
   customerId: string;
 }

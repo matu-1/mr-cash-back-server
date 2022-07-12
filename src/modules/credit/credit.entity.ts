@@ -56,6 +56,8 @@ export class Credit extends BaseEntity {
   approvedPhotoUrl: string;
   @Column({ name: 'disbursement_photo_url', nullable: true })
   disbursementPhotoUrl: string;
+  @Column({ type: 'int' })
+  numberId: number;
   //relations
   @Column({ name: 'customer_id' })
   customerId: string;

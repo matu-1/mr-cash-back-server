@@ -86,6 +86,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       return await this.creditRepository.manager.transaction(
         async (manager) => {
           dto.status = creditStatus;
+          dto.numberId = Date.now();
           if ((dto as any).id) {
             await Promise.all([
               manager.save(Credit, {
@@ -124,7 +125,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         },
       );
     } catch (error) {
-      //console.log(error);
+      console.log(error);
       throw new BadRequestException(MessageException.GENERAL);
     }
   }
@@ -236,8 +237,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           acreedorNroCasa: '1255',
           deudorNombre: data.customer.name,
           deudorCI: data.bankAccount.identityNumber,
-          deudorExpedicion: 'SC',
-          deudorDireccion: 'Plan 3000 Av. paurito',
+          deudorExpedicion: data.bankAccount.extension,
+          deudorDireccion: data.bankAccount.address,
           amount: data.originalAmount,
           totalAmount: data.totalAmount,
           quantityFee: data.quantityFee,

@@ -30,6 +30,8 @@ export class CreateCreditDto {
   @ApiProperty({ readOnly: true })
   status: number;
   @ApiProperty({ readOnly: true })
+  numberId: number;
+  @ApiProperty({ readOnly: true })
   deliveryAmount: number;
   @ApiProperty({ readOnly: true })
   percentageServiceFee: number;
