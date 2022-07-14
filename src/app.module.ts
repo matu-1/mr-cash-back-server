@@ -18,6 +18,7 @@ import { CreditStatusModule } from './modules/credit-status/credit-status.module
 import { CreditFeeModule } from './modules/credit-fee/credit-fee.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { DeliveryModule } from './modules/delivery/delivery.module';
       rootPath: join(__dirname, '..', 'client'),
       exclude: ['/api*'],
     }),
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
