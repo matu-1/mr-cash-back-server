@@ -48,6 +48,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         'bankAccount',
         'warranties',
         'warranties.photos',
+        'warranties.category',
       ],
       errorMessage,
     );
