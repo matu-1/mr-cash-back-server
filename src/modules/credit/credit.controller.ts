@@ -116,4 +116,9 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.getEarnings(startDate, endDate);
     return new Response(result);
   }
+
+  @Get('test/whatsapp')
+  async testMessageWhatsapp() {
+    await this.creditService.sendWhatsapp('59177640687', 'Mensaje de prueba')
+  }
 }

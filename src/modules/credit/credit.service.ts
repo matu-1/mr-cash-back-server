@@ -19,6 +19,7 @@ import { CreateCreditFee } from '../credit-fee/interfaces/credit-fee.interface';
 import { CreateContractDto } from './utils/create-pdf';
 import { uploadConctract } from './utils/create-pdf';
 import { DateUtils } from '../../utils/date';
+import axios from 'axios';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -122,6 +123,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
               })),
             );
           }
+          this.sendWhatsapp('19174028986', `Nuevo crédito *MR CASH BACK*\nID ${credit.id.split('-')[0]}\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`);
           return credit;
         },
       );
@@ -329,7 +331,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const month = new Date().getMonth() + 1;
     const averageAmountPromise = this.creditRepository.manager.query(
       `
-        select ROUND(avg(c.total_amount), 2) as averageAmount 
+        select ROUND(avg(c.total_amount), 2) as averageAmount
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
       `,
@@ -338,7 +340,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const activedCustomerPromise = this.creditRepository.manager.query(
       `
         select count(distinct c.id) as activedCustomers
-        from customer c 
+        from customer c
         inner join credit cd on cd.customer_id = c.id
         where month(c.created_at) = ?
         and cd.status = ? or cd.status = ?
@@ -356,14 +358,14 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const registeredCustomerPromise = this.creditRepository.manager.query(
       `
         select count(*) as registeredCustomers
-        from customer c 
+        from customer c
         where month(c.created_at) = ?
       `,
       [month],
     );
     const originalAmountPromise = this.creditRepository.manager.query(
       `
-        select sum(c.original_amount) as originalAmount 
+        select sum(c.original_amount) as originalAmount
         from credit c where month(c.created_at) = ?
         and c.status = ? or c.status = ?
       `,
@@ -395,7 +397,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const year = new Date().getFullYear();
     const averageAmountPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, ROUND(avg(c.total_amount), 2) as value 
+        select month(c.created_at) as month, ROUND(avg(c.total_amount), 2) as value
         from credit c where year(c.created_at) = ?
         and c.status = ? or c.status = ?
         group by month(c.created_at)
@@ -405,7 +407,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const activedCustomerPromise = this.creditRepository.manager.query(
       `
         select month(c.created_at) as month, count(distinct c.id) as value
-        from customer c 
+        from customer c
         inner join credit cd on cd.customer_id = c.id
         where year(c.created_at) = ?
         and cd.status = ? or cd.status = ?
@@ -425,7 +427,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const registeredCustomerPromise = this.creditRepository.manager.query(
       `
         select month(c.created_at) as month, count(*) as value
-        from customer c 
+        from customer c
         where year(c.created_at) = ?
         group by month(c.created_at)
       `,
@@ -433,7 +435,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     );
     const originalAmountPromise = this.creditRepository.manager.query(
       `
-        select month(c.created_at) as month, sum(c.original_amount) as value 
+        select month(c.created_at) as month, sum(c.original_amount) as value
         from credit c where year(c.created_at) = ?
         and c.status = ? or c.status = ?
         group by month(c.created_at)
@@ -510,5 +512,19 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         end,
       })
       .getMany();
+  }
+
+  async sendWhatsapp(phone: string, message: string) {
+    // EXAMPLE PHONE = 59177640687
+    const url = 'https://labs.patio.com.bo/whatsapp/send_message.php';
+    const data = await axios.post(
+      url,
+      {
+        "phone": phone,
+        "message": message
+      },
+    );
+    console.log(data);
+    return data;
   }
 }
