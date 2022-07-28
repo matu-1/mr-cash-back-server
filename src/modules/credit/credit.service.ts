@@ -123,14 +123,14 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
               })),
             );
           }
-          this.sendWhatsapp('19174028986', `Nuevo crédito *MR CASH BACK*\nID ${credit.id.split('-')[0]}\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`);
+          // this.sendWhatsapp('19174028986', `Nuevo crédito *MR CASH BACK*\nID ${credit.id.split('-')[0]}\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`);
           return credit;
         },
-      );
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(MessageException.GENERAL);
-    }
+        );
+      } catch (error) {
+        console.log(error);
+        throw new BadRequestException(MessageException.GENERAL);
+      }
   }
 
   async offer({ id, ...dto }: OfferCreditDto, userId: string) {
