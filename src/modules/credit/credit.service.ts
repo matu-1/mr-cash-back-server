@@ -85,7 +85,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     ]);
     this.calculateCredit(dto);
     try {
-      const credit = await this.creditRepository.manager.transaction(
+      return await this.creditRepository.manager.transaction(
         async (manager) => {
           dto.status = creditStatus;
           dto.numberId = Date.now();
@@ -123,20 +123,14 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
               })),
             );
           }
+          // this.sendWhatsapp('19174028986', `Nuevo crédito *MR CASH BACK*\nID ${credit.id.split('-')[0]}\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`);
           return credit;
         },
-      );
-      await this.sendWhatsapp(
-        '19174028986',
-        `Nuevo crédito *MR CASH BACK*\nID ${
-          credit.id.split('-')[0]
-        }\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`,
-      );
-      return credit;
-    } catch (error) {
-      console.log(error);
-      throw new BadRequestException(MessageException.GENERAL);
-    }
+        );
+      } catch (error) {
+        console.log(error);
+        throw new BadRequestException(MessageException.GENERAL);
+      }
   }
 
   async offer({ id, ...dto }: OfferCreditDto, userId: string) {
@@ -526,10 +520,13 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const instance = axios.create({
       timeout: 1000,
     });
-    const data = await instance.post(url, {
-      phone: phone,
-      message: message,
-    });
+    const data = await instance.post(
+      url,
+      {
+        "phone": phone,
+        "message": message
+      },
+    );
     console.log(data);
     return data;
   }
