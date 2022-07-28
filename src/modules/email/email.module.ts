@@ -1,15 +1,30 @@
 import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
-import { SendGridModule } from '@anchan828/nest-sendgrid';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
-  imports:[
-    SendGridModule.forRoot({
-      apikey: process.env.SENDGRID_API_KEY,
+  imports: [
+    MailerModule.forRoot({
+      transport: {
+        name: process.env.NAME_EMAIL,
+        host: process.env.HOST_EMAIL,
+        port: process.env.PORT_EMAIL,
+        secure: false,
+        auth: {
+          user: process.env.FROM_EMAIL,
+          pass: process.env.PASS_EMAIL,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+        defaults: {
+          from: `"Mr Cash Back" <${process.env.FROM_EMAIL}>`,
+        },
+      },
     }),
   ],
   providers: [EmailService],
-  controllers: [EmailController]
+  controllers: [EmailController],
 })
 export class EmailModule {}

@@ -26,7 +26,8 @@
     "migration:revert": "npm run typeorm:cli -- migration:revert"
   },
   "dependencies": {
-    "@anchan828/nest-sendgrid": "^0.6.0",
+    "@nestjs-modules/mailer": "^1.8.1",
+    "nodemailer": "^6.7.7",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.0.0",

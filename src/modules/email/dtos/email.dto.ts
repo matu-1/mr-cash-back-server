@@ -8,6 +8,7 @@ export class EmailDto {
     @MinLength(3)
     name: string;
     @IsIn([
+        CREDIT_STATUS.PENDING,
         CREDIT_STATUS.CANCELLED,
         CREDIT_STATUS.PREAPPROVED,
         CREDIT_STATUS.WAITING,
