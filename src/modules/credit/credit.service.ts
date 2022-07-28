@@ -517,7 +517,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   async sendWhatsapp(phone: string, message: string) {
     // EXAMPLE PHONE = 59177640687
     const url = 'https://labs.patio.com.bo/whatsapp/send_message.php';
-    const data = await axios.post(
+    const instance = axios.create({
+      timeout: 1000,
+    });
+    const data = await instance.post(
       url,
       {
         "phone": phone,
