@@ -20,6 +20,7 @@ import { CreateContractDto } from './utils/create-pdf';
 import { uploadConctract } from './utils/create-pdf';
 import { DateUtils } from '../../utils/date';
 import axios from 'axios';
+import { Customer } from '../customer/customer.entity';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -123,14 +124,22 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
               })),
             );
           }
-          // this.sendWhatsapp('19174028986', `Nuevo crédito *MR CASH BACK*\nID ${credit.id.split('-')[0]}\nCliente: ${credit.customer.name}\nMonto: ${credit.originalAmount}`);
+          const customer = await manager.findOne(Customer, {
+            where: { id: dto.customerId },
+          });
+          await this.sendWhatsapp(
+            '19174028986',
+            `Nuevo crédito *MR CASH BACK*\nID ${
+              credit.id.split('-')[0]
+            }\nCliente: ${customer.name}\nMonto: ${credit.originalAmount}`,
+          );
           return credit;
         },
-        );
-      } catch (error) {
-        console.log(error);
-        throw new BadRequestException(MessageException.GENERAL);
-      }
+      );
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(MessageException.GENERAL);
+    }
   }
 
   async offer({ id, ...dto }: OfferCreditDto, userId: string) {
@@ -516,18 +525,19 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
 
   async sendWhatsapp(phone: string, message: string) {
     // EXAMPLE PHONE = 59177640687
-    const url = 'https://labs.patio.com.bo/whatsapp/send_message.php';
-    const instance = axios.create({
-      timeout: 1000,
-    });
-    const data = await instance.post(
-      url,
-      {
-        "phone": phone,
-        "message": message
-      },
-    );
-    console.log(data);
-    return data;
+    try {
+      const url = 'https://labs.patio.com.bo/whatsapp/send_message.php';
+      const instance = axios.create({
+        timeout: 1000,
+      });
+      const data = await instance.post(url, {
+        phone: phone,
+        message: message,
+      });
+      // console.log(data);
+      // return data;
+    } catch (error) {
+      // return null;
+    }
   }
 }
