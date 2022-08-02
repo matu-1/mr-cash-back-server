@@ -31,6 +31,10 @@ export interface CreateContractDto {
   nroFacturaCompra: string;
   facturaCompra: string;
   creationDate: Date;
+  plan: string;
+  serviceFee: number;
+  storage: number;
+  delivery: number;
 }
 
 export async function createContractPdf(dto: CreateContractDto) {
@@ -60,6 +64,10 @@ export async function createContractPdf(dto: CreateContractDto) {
     nroFacturaCompra,
     facturaCompra,
     creationDate,
+    plan,
+    serviceFee,
+    delivery,
+    storage,
   } = dto;
   const [creationDay, creationMonth, creationYear] = format(
     creationDate,
@@ -164,18 +172,22 @@ export async function createContractPdf(dto: CreateContractDto) {
       {
         text: [
           { text: 'SEXTA (COSTOS ADICIONALES).- ', style: 'subtitle' },
-          `Adicionalmente al capital y los intereses asumidos por el deudor en base al presente documento, el deudor reconoce que tiene conocimiento y asumirá los costos por tasa de servicios por un monto de Bs.- `,
-          { text: totalAmount - amount, decoration: 'underline' },
-          ', que serán cancelados en ',
+          `Adicionalmente al capital y los intereses asumidos por el deudor en base al presente documento, el deudor reconoce que tiene conocimiento y asumirá los costos adicionarles en cada cuota detallados así: Tasa de servicios app Bs. `,
+          { text: serviceFee, decoration: 'underline' },
+          ', Almacenaje garantía Bs. ',
+          { text: storage, decoration: 'underline' },
+          ', Transporte garantía ida y vuelta Bs. ',
+          { text: delivery, decoration: 'underline' },
+          ', en ',
           { text: quantityFee, decoration: 'underline' },
-          ' cuotas o durante el tiempo de duración del crédito, y los costos por recojo y devolución de la garantía que serán calculados en base a la distancia de lugar de recojo de la prenda, reservándose EL ACREEDOR el derecho de modificar precios o tarifas de acuerdo a las condiciones que lo ameriten.',
+          ' cuotas. Reservándose EL ACREEDOR el derecho de modificar precios o tarifas de acuerdo a las condiciones que lo ameriten.',
         ],
       },
       {
         text: [
           { text: 'SEPTIMA (FORMA DE PAGO).- ', style: 'subtitle' },
-          `EL DEUDOR se compromete a pagar y cancelar la totalidad de la obligación y los intereses generados, mediante ${quantityFee} cuotas semanales descritas de la siguiente manera:`,
-          `EL DEUDOR cancelara ${quantityFee} cuotas semanales por la suma de Bs. `,
+          `EL DEUDOR se compromete a pagar y cancelar la totalidad de la obligación y los intereses generados, mediante ${quantityFee} cuotas ${plan} descritas de la siguiente manera: `,
+          `EL DEUDOR cancelara cuotas por la suma de Bs. `,
           {
             text: (totalAmount / quantityFee).toFixed(2),
             decoration: 'underline',

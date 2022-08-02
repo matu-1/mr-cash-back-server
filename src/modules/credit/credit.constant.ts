@@ -16,3 +16,8 @@ export const PLAN = {
   WEEKLY: 0,
   MONTHLY: 1,
 };
+
+export const PLAN_TEXT = {
+  [PLAN.WEEKLY]: 'Semanal',
+  [PLAN.MONTHLY]: 'Mensual',
+};

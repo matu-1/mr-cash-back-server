@@ -10,7 +10,7 @@ import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 import { Warranty } from '../warranty/warranty.entity';
 import { MessageException } from '../../constants/message-exception';
 import { CreditStatus } from '../credit-status/credit-status.entity';
-import { CREDIT_STATUS, PLAN } from './credit.constant';
+import { CREDIT_STATUS, PLAN, PLAN_TEXT } from './credit.constant';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { CreditFee } from '../credit-fee/credit-fee.entity';
@@ -230,12 +230,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       if (dto.status === CREDIT_STATUS.PREAPPROVED) {
         const fees = await this.createFees(data, manager);
         const contractDto: CreateContractDto = {
-          nit: '28555652655',
-          acreedorNombre: 'Juan Pablo',
-          acreedorCI: '12345678',
+          nit: '00441170',
+          acreedorNombre: 'Juan Pablo Salinas Salek',
+          acreedorCI: '6280655',
           acreedorExpedicion: 'SC',
-          acreedorDireccion: 'Ramada Av avenida',
-          acreedorNroCasa: '1255',
+          acreedorDireccion: 'Av. Barrientos, Calle Dechia',
+          acreedorNroCasa: '290',
           deudorNombre: data.customer.name,
           deudorCI: data.bankAccount.identityNumber,
           deudorExpedicion: data.bankAccount.extension,
@@ -253,6 +253,11 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           nroFacturaCompra: '******',
           facturaCompra: '******',
           creationDate: new Date(),
+          plan: PLAN_TEXT[data.plan],
+          delivery: data.deliveryAmount,
+          serviceFee:
+            Number(data.originalAmount) * (data.percentageServiceFee / 100),
+          storage: Number(data.originalAmount) * (data.percentageStorage / 100),
         };
         dto.urlContract = await uploadConctract(contractDto);
       }
@@ -265,6 +270,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
+          reason: dto.reason,
           userId,
           creditId: id,
         }),
@@ -318,8 +324,9 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
+    const storage = (dto.originalAmount * dto.percentageStorage) / 100;
     dto.totalAmount =
-      dto.originalAmount + serviceFee + interest + dto.deliveryAmount;
+      dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
     if (dto.expressDisbursement)
       dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
     return dto;
