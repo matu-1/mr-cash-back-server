@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsUrl } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsUrl } from 'class-validator';
 import { CREDIT_STATUS } from '../credit.constant';
 
 export class UpdateCreditStatusDto {
@@ -29,4 +29,8 @@ export class UpdateCreditStatusDto {
   @IsOptional()
   @IsUrl()
   disbursementPhotoUrl?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNotEmpty()
+  reason?: string;
 }

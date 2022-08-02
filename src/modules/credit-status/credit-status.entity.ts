@@ -7,6 +7,8 @@ import { User } from '../user/user.entity';
 export class CreditStatus extends BaseEntity {
   @Column({ type: 'tinyint' })
   status: number;
+  @Column({ type: 'text', nullable: true })
+  reason: string;
   //relations
   @Column({ name: 'credit_id' })
   creditId: string;
