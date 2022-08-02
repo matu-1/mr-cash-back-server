@@ -340,7 +340,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
     if (dto.expressDisbursement)
     dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
-    console.log(dto.totalAmount);
+    console.log(dto.percentageStorage);
     return dto;
   }
 
