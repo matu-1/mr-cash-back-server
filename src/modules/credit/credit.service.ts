@@ -518,4 +518,15 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       })
       .getMany();
   }
+
+  async findStatus(id: string) {
+    const statusSql = `
+      select cs.id, cs.status, cs.reason, cs.created_at, u.name, u.email 
+      from credit_status cs  
+      inner join user u on u.id = cs.user_id
+      where cs.credit_id = ? 
+      order by cs.created_at ASC
+    `;
+    return await this.creditRepository.query(statusSql, [id]);
+  }
 }

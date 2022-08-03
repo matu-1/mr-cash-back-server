@@ -116,4 +116,13 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.getEarnings(startDate, endDate);
     return new Response(result);
   }
+
+  @ApiOperation({
+    summary: 'Get Status Historial',
+  })
+  @Get('/status/historial/:id')
+  async findStatus(@Param('id') id: string) {
+    const result = await this.creditService.findStatus(id);
+    return new Response(result);
+  }
 }
