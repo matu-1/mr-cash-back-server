@@ -37,6 +37,8 @@ export class CreateCreditDto {
   percentageServiceFee: number;
   @ApiProperty({ readOnly: true })
   percentageInterest: number;
+  @ApiProperty({ readOnly: true })
+  percentageStorage: number = CONFIG.PERCENTAGE_STORAGE;
   @IsUUID()
   customerId: string;
   @IsUUID()

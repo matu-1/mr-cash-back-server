@@ -91,9 +91,9 @@ export class CreditController extends CrudController<Credit> {
   @ApiOperation({
     summary: 'Get Total by Status (Active, Canceled, Expired, Complete)',
   })
-  @Get('total-by-status')
-  async getTotalByStatus() {
-    const result = await this.creditService.getTotalByStatus();
+  @Get('total-by-status/:status')
+  async getTotalByStatus(@Param('status') status: number) {
+    const result = await this.creditService.getTotalByStatus(status);
     return new Response(result);
   }
 
@@ -120,5 +120,13 @@ export class CreditController extends CrudController<Credit> {
   @Get('test/whatsapp')
   async testMessageWhatsapp() {
     await this.creditService.sendWhatsapp('59177640687', 'Mensaje de prueba')
+  }
+  @ApiOperation({
+    summary: 'Get Status Historial',
+  })
+  @Get('/status/historial/:id')
+  async findStatus(@Param('id') id: string) {
+    const result = await this.creditService.findStatus(id);
+    return new Response(result);
   }
 }

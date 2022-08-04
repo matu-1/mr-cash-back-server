@@ -10,7 +10,7 @@ import { WarrantyPhoto } from '../warranty-photo/warranty-photo.entity';
 import { Warranty } from '../warranty/warranty.entity';
 import { MessageException } from '../../constants/message-exception';
 import { CreditStatus } from '../credit-status/credit-status.entity';
-import { CREDIT_STATUS, PLAN } from './credit.constant';
+import { CREDIT_STATUS, PLAN, PLAN_TEXT } from './credit.constant';
 import { UpdateCreditStatusDto } from './dtos/update-credit-status.dto';
 import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { CreditFee } from '../credit-fee/credit-fee.entity';
@@ -238,15 +238,19 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       throw new BadRequestException(`disbursementPhotoUrl is required`);
 
     return this.creditRepository.manager.transaction(async (manager) => {
-      if (dto.status === CREDIT_STATUS.PREAPPROVED) {
-        const fees = await this.createFees(data, manager);
+      if (dto.status === CREDIT_STATUS.APPROVED) {
+        dto.disburseAt = DateUtils.addDays(
+          new Date(),
+          data.expressDisbursement ? 1 : 2,
+        );
+        const fees = await this.createFees(data, manager, dto.disburseAt);
         const contractDto: CreateContractDto = {
-          nit: '28555652655',
-          acreedorNombre: 'Juan Pablo',
-          acreedorCI: '12345678',
+          nit: '00441170',
+          acreedorNombre: 'Juan Pablo Salinas Salek',
+          acreedorCI: '6280655',
           acreedorExpedicion: 'SC',
-          acreedorDireccion: 'Ramada Av avenida',
-          acreedorNroCasa: '1255',
+          acreedorDireccion: 'Av. Barrientos, Calle Dechia',
+          acreedorNroCasa: '290',
           deudorNombre: data.customer.name,
           deudorCI: data.bankAccount.identityNumber,
           deudorExpedicion: data.bankAccount.extension,
@@ -264,18 +268,18 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           nroFacturaCompra: '******',
           facturaCompra: '******',
           creationDate: new Date(),
+          plan: PLAN_TEXT[data.plan],
+          delivery: data.deliveryAmount,
+          serviceFee:
+            Number(data.originalAmount) * (data.percentageServiceFee / 100),
+          storage: Number(data.originalAmount) * (data.percentageStorage / 100),
         };
         dto.urlContract = await uploadConctract(contractDto);
-      }
-      if (dto.status == CREDIT_STATUS.APPROVED) {
-        dto.disburseAt = DateUtils.addDays(
-          new Date(),
-          data.expressDisbursement ? 1 : 2,
-        );
       }
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
+          reason: dto.reason,
           userId,
           creditId: id,
         }),
@@ -286,10 +290,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     });
   }
 
-  createFees(credit: Credit, manager: EntityManager) {
+  createFees(credit: Credit, manager: EntityManager, start: Date = new Date()) {
     const creditFees: CreateCreditFee[] = [];
     const amount = credit.totalAmount / credit.quantityFee;
-    let today = new Date();
+    let today = start;
     // const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
     for (let index = 1; index <= credit.quantityFee; index++) {
       today = new Date(today);
@@ -329,8 +333,9 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
+    const storage = (dto.originalAmount * dto.percentageStorage) / 100;
     dto.totalAmount =
-      dto.originalAmount + serviceFee + interest + dto.deliveryAmount;
+      dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
     if (dto.expressDisbursement)
       dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
     return dto;
@@ -473,34 +478,17 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     };
   }
 
-  async getTotalByStatus() {
-    const credits = await this.findAll();
-    const res = {
-      active: 0,
-      expired: 0,
-      canceled: 0,
-      complete: 0,
-    };
-    credits.forEach((credit) => {
-      switch (credit.status) {
-        case CREDIT_STATUS.EXPIRED:
-          res.expired++;
-          break;
-        case CREDIT_STATUS.COMPLETED:
-          res.complete++;
-          break;
-        case CREDIT_STATUS.CANCELLED:
-        case CREDIT_STATUS.REJECTED:
-          res.canceled++;
-          break;
-        case CREDIT_STATUS.DISBURSED:
-          res.active++;
-          break;
-        default:
-          break;
-      }
-    });
-    return res;
+  async getTotalByStatus(status: number) {
+    let where = '';
+    if (status == CREDIT_STATUS.CANCELLED)
+      where = 'c.status = :status or c.status = :reject';
+    else where = 'c.status = :status';
+    return this.creditRepository
+      .createQueryBuilder('c')
+      .leftJoin('c.customer', 'cu')
+      .where(where, { status, reject: CREDIT_STATUS.REJECTED })
+      .select(['c', 'cu.id', 'cu.name', 'cu.phone'])
+      .getMany();
   }
 
   async getLiquidatedWarranties() {
@@ -539,5 +527,15 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     } catch (error) {
       // return null;
     }
+  }
+  async findStatus(id: string) {
+    const statusSql = `
+      select cs.id, cs.status, cs.reason, cs.created_at, u.name, u.email 
+      from credit_status cs  
+      inner join user u on u.id = cs.user_id
+      where cs.credit_id = ? 
+      order by cs.created_at ASC
+    `;
+    return await this.creditRepository.query(statusSql, [id]);
   }
 }
