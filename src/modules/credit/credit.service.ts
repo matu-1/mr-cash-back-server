@@ -227,8 +227,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       throw new BadRequestException(`disbursementPhotoUrl is required`);
 
     return this.creditRepository.manager.transaction(async (manager) => {
-      if (dto.status === CREDIT_STATUS.PREAPPROVED) {
-        const fees = await this.createFees(data, manager);
+      if (dto.status === CREDIT_STATUS.APPROVED) {
+        dto.disburseAt = DateUtils.addDays(
+          new Date(),
+          data.expressDisbursement ? 1 : 2,
+        );
+        const fees = await this.createFees(data, manager, dto.disburseAt);
         const contractDto: CreateContractDto = {
           nit: '00441170',
           acreedorNombre: 'Juan Pablo Salinas Salek',
@@ -261,12 +265,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         };
         dto.urlContract = await uploadConctract(contractDto);
       }
-      if (dto.status == CREDIT_STATUS.APPROVED) {
-        dto.disburseAt = DateUtils.addDays(
-          new Date(),
-          data.expressDisbursement ? 1 : 2,
-        );
-      }
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
@@ -281,10 +279,10 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     });
   }
 
-  createFees(credit: Credit, manager: EntityManager) {
+  createFees(credit: Credit, manager: EntityManager, start: Date = new Date()) {
     const creditFees: CreateCreditFee[] = [];
     const amount = credit.totalAmount / credit.quantityFee;
-    let today = new Date();
+    let today = start;
     // const offsetDay = credit.plan == PLAN.WEEKLY ? 7 : 30;
     for (let index = 1; index <= credit.quantityFee; index++) {
       today = new Date(today);
@@ -469,34 +467,17 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     };
   }
 
-  async getTotalByStatus() {
-    const credits = await this.findAll();
-    const res = {
-      active: 0,
-      expired: 0,
-      canceled: 0,
-      complete: 0,
-    };
-    credits.forEach((credit) => {
-      switch (credit.status) {
-        case CREDIT_STATUS.EXPIRED:
-          res.expired++;
-          break;
-        case CREDIT_STATUS.COMPLETED:
-          res.complete++;
-          break;
-        case CREDIT_STATUS.CANCELLED:
-        case CREDIT_STATUS.REJECTED:
-          res.canceled++;
-          break;
-        case CREDIT_STATUS.DISBURSED:
-          res.active++;
-          break;
-        default:
-          break;
-      }
-    });
-    return res;
+  async getTotalByStatus(status: number) {
+    let where = '';
+    if (status == CREDIT_STATUS.CANCELLED)
+      where = 'c.status = :status or c.status = :reject';
+    else where = 'c.status = :status';
+    return this.creditRepository
+      .createQueryBuilder('c')
+      .leftJoin('c.customer', 'cu')
+      .where(where, { status, reject: CREDIT_STATUS.REJECTED })
+      .select(['c', 'cu.id', 'cu.name', 'cu.phone'])
+      .getMany();
   }
 
   async getLiquidatedWarranties() {
