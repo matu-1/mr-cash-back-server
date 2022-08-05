@@ -18,6 +18,7 @@ import { OfferCreditDto } from './dtos/offer-credit.dto';
 import { Query } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { DateUtils } from 'src/utils/date';
+import { format } from 'date-fns';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -123,6 +124,16 @@ export class CreditController extends CrudController<Credit> {
   @Get('/status/historial/:id')
   async findStatus(@Param('id') id: string) {
     const result = await this.creditService.findStatus(id);
+    return new Response(result);
+  }
+
+  @ApiOperation({
+    summary: 'Get by date',
+  })
+  @Get('/date/:date')
+  async findByDate(@Param('date') date: string) {
+    const parsedDate = format(new Date(date), 'yyyy-MM-dd');
+    const result = await this.creditService.findByDate(parsedDate);
     return new Response(result);
   }
 }

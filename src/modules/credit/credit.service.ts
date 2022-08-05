@@ -510,4 +510,52 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     `;
     return await this.creditRepository.query(statusSql, [id]);
   }
+
+  async findByDate(date: string) {
+    const creditSql = `
+      select c.*, (
+        select cs.reason 
+        from credit_status cs 
+        where cs.credit_id = c.id 
+        order by cs.created_at desc limit 1) as reason
+      from credit c
+      where date(c.created_at) = ?
+    `;
+    const credits = await this.creditRepository.query(creditSql, [date]);
+
+    const dataByStatus = {
+      [CREDIT_STATUS.PENDING]: [],
+      [CREDIT_STATUS.PREAPPROVED]: [],
+      [CREDIT_STATUS.WAITING]: [],
+      [CREDIT_STATUS.DISBURSED]: [],
+      [CREDIT_STATUS.CANCELLED]: [],
+      [CREDIT_STATUS.REJECTED]: [],
+    };
+
+    credits.forEach((credit) => {
+      switch (credit.status) {
+        case CREDIT_STATUS.PENDING:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.PREAPPROVED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.WAITING:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.DISBURSED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.CANCELLED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.REJECTED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        default:
+          break;
+      }
+    });
+    return dataByStatus;
+  }
 }
