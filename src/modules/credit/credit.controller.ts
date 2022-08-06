@@ -136,4 +136,13 @@ export class CreditController extends CrudController<Credit> {
     const result = await this.creditService.findByDate(parsedDate);
     return new Response(result);
   }
+
+  @ApiOperation({
+    summary: 'Get Delayed Credit',
+  })
+  @Get('/delayed/active')
+  async findDelayedCredit() {
+    const result = await this.creditService.findDelayedCredit();
+    return new Response(result);
+  }
 }

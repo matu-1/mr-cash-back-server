@@ -19,6 +19,7 @@ import { CreateCreditFee } from '../credit-fee/interfaces/credit-fee.interface';
 import { CreateContractDto } from './utils/create-pdf';
 import { uploadConctract } from './utils/create-pdf';
 import { DateUtils } from '../../utils/date';
+import { FeeStatus } from '../credit-fee/credit-fee.enum';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -477,6 +478,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       .leftJoin('c.customer', 'cu')
       .where(where, { status, reject: CREDIT_STATUS.REJECTED })
       .select(['c', 'cu.id', 'cu.name', 'cu.phone'])
+      .orderBy('c.createdAt', 'DESC')
       .getMany();
   }
 
@@ -557,5 +559,28 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       }
     });
     return dataByStatus;
+  }
+
+  async findDelayedCredit() {
+    const creditSql = `
+      select c.*, (
+        select cf.payment_date
+        from credit_fee cf
+        where cf.credit_id = c.id and cf.status <> ${FeeStatus.Paid}
+        and cf.payment_date < CURRENT_DATE 
+        order by cf.created_at asc
+        limit 1
+      ) as  payment_date
+      from credit c
+      where c.status = ? and (
+        select cf.payment_date
+        from credit_fee cf
+        where cf.credit_id = c.id and cf.status <> ${FeeStatus.Paid}
+        and cf.payment_date < CURRENT_DATE 
+        limit 1
+      )
+      order by c.created_at desc
+    `;
+    return this.creditRepository.query(creditSql, [CREDIT_STATUS.DISBURSED]);
   }
 }
