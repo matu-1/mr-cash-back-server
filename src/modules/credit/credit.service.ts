@@ -21,6 +21,9 @@ import { uploadConctract } from './utils/create-pdf';
 import { DateUtils } from '../../utils/date';
 import axios from 'axios';
 import { Customer } from '../customer/customer.entity';
+import { FeeStatus } from '../credit-fee/credit-fee.enum';
+import { UpdateCreditDto } from './dtos/update-credit.dto';
+import { Delivery } from '../delivery/delivery.entity';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -488,6 +491,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       .leftJoin('c.customer', 'cu')
       .where(where, { status, reject: CREDIT_STATUS.REJECTED })
       .select(['c', 'cu.id', 'cu.name', 'cu.phone'])
+      .orderBy('c.createdAt', 'DESC')
       .getMany();
   }
 
@@ -530,12 +534,99 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
   }
   async findStatus(id: string) {
     const statusSql = `
-      select cs.id, cs.status, cs.reason, cs.created_at, u.name, u.email 
-      from credit_status cs  
+      select cs.id, cs.status, cs.reason, cs.created_at, u.name, u.email
+      from credit_status cs
       inner join user u on u.id = cs.user_id
-      where cs.credit_id = ? 
+      where cs.credit_id = ?
       order by cs.created_at ASC
     `;
     return await this.creditRepository.query(statusSql, [id]);
+  }
+
+  async findByDate(date: string) {
+    const creditSql = `
+      select c.*, (
+        select cs.reason
+        from credit_status cs
+        where cs.credit_id = c.id
+        order by cs.created_at desc limit 1) as reason
+      from credit c
+      where date(c.created_at) = ?
+    `;
+    const credits = await this.creditRepository.query(creditSql, [date]);
+
+    const dataByStatus = {
+      [CREDIT_STATUS.PENDING]: [],
+      [CREDIT_STATUS.PREAPPROVED]: [],
+      [CREDIT_STATUS.WAITING]: [],
+      [CREDIT_STATUS.DISBURSED]: [],
+      [CREDIT_STATUS.CANCELLED]: [],
+      [CREDIT_STATUS.REJECTED]: [],
+    };
+
+    credits.forEach((credit) => {
+      switch (credit.status) {
+        case CREDIT_STATUS.PENDING:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.PREAPPROVED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.WAITING:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.DISBURSED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.CANCELLED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        case CREDIT_STATUS.REJECTED:
+          dataByStatus[credit.status].push(credit);
+          break;
+        default:
+          break;
+      }
+    });
+    return dataByStatus;
+  }
+
+  async findDelayedCredit() {
+    const creditSql = `
+      select c.*, (
+        select cf.payment_date
+        from credit_fee cf
+        where cf.credit_id = c.id and cf.status <> ${FeeStatus.Paid}
+        and cf.payment_date < CURRENT_DATE
+        order by cf.created_at asc
+        limit 1
+      ) as  payment_date
+      from credit c
+      where c.status = ? and (
+        select cf.payment_date
+        from credit_fee cf
+        where cf.credit_id = c.id and cf.status <> ${FeeStatus.Paid}
+        and cf.payment_date < CURRENT_DATE
+        limit 1
+      )
+      order by c.created_at desc
+    `;
+    return this.creditRepository.query(creditSql, [CREDIT_STATUS.DISBURSED]);
+  }
+
+  async update(id: string, dto: UpdateCreditDto) {
+    const data = await this.findById(id);
+    return await this.creditRepository.manager.transaction(async (manager) => {
+      const totalAmount =
+        data.totalAmount - data.deliveryAmount + dto.deliveryAmount;
+      const [credit] = await Promise.all([
+        manager.save(Credit, { id, totalAmount, ...dto }),
+        manager.save(Delivery, {
+          id: dto.deliveryId,
+          amount: dto.deliveryAmount,
+        }),
+      ]);
+      return credit;
+    });
   }
 }
