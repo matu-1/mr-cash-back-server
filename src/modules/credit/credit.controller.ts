@@ -19,6 +19,7 @@ import { Query } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { DateUtils } from 'src/utils/date';
 import { format } from 'date-fns';
+import { UpdateCreditDto } from './dtos/update-credit.dto';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -143,6 +144,18 @@ export class CreditController extends CrudController<Credit> {
   @Get('/delayed/active')
   async findDelayedCredit() {
     const result = await this.creditService.findDelayedCredit();
+    return new Response(result);
+  }
+
+  @ApiOperation({
+    summary: 'Update Credit Delivery',
+  })
+  @Put('/:id')
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateCreditDto,
+  ) {
+    const result = await this.creditService.update(id, dto);
     return new Response(result);
   }
 }

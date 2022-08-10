@@ -20,6 +20,8 @@ import { CreateContractDto } from './utils/create-pdf';
 import { uploadConctract } from './utils/create-pdf';
 import { DateUtils } from '../../utils/date';
 import { FeeStatus } from '../credit-fee/credit-fee.enum';
+import { UpdateCreditDto } from './dtos/update-credit.dto';
+import { Delivery } from '../delivery/delivery.entity';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -582,5 +584,21 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       order by c.created_at desc
     `;
     return this.creditRepository.query(creditSql, [CREDIT_STATUS.DISBURSED]);
+  }
+
+  async update(id: string, dto: UpdateCreditDto) {
+    const data = await this.findById(id);
+    return await this.creditRepository.manager.transaction(async (manager) => {
+      const totalAmount =
+        data.totalAmount - data.deliveryAmount + dto.deliveryAmount;
+      const [credit] = await Promise.all([
+        manager.save(Credit, { id, totalAmount, ...dto }),
+        manager.save(Delivery, {
+          id: dto.deliveryId,
+          amount: dto.deliveryAmount,
+        }),
+      ]);
+      return credit;
+    });
   }
 }
