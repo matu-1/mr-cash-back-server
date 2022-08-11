@@ -4,6 +4,9 @@ import { EmailDto } from './dtos/email.dto';
 import { CREDIT_STATUS } from '../credit/credit.constant';
 import { newCreditTemplate } from './utils/new_credit_email';
 import { MailerService } from '@nestjs-modules/mailer';
+import { waitingTemplate } from './utils/waiting_email';
+import { aprovedTemplate } from './utils/approved_email';
+import { disbursementTemplate } from './utils/disbursement_email';
 
 @Injectable()
 export class EmailService {
@@ -20,6 +23,18 @@ export class EmailService {
       case CREDIT_STATUS.PREAPPROVED:
         subject = 'Tu credito ha sido pre aprobado';
         html = preaprovedTemplate(dto);
+        break;
+      case CREDIT_STATUS.WAITING:
+        subject = 'Tu credito está en espera';
+        html = waitingTemplate(dto);
+        break;
+      case CREDIT_STATUS.WAITING:
+        subject = 'Tu credito está aprobado';
+        html = aprovedTemplate(dto);
+        break;
+      case CREDIT_STATUS.DISBURSED:
+        subject = 'Tu credito ha sido desembolsado';
+        html = disbursementTemplate(dto);
         break;
     }
     try {
