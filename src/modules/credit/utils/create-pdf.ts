@@ -74,8 +74,8 @@ export async function createContractPdf(dto: CreateContractDto) {
     'd,MMMM,yy',
     { locale: esLocale },
   ).split(',');
-  const fistFeeDate = format(dto.fistFeeDate, 'dd/MM/yyyy');
-  const lastFeeDate = format(dto.lastFeeDate, 'dd/MM/yyyy');
+  // const fistFeeDate = format(dto.fistFeeDate, 'dd/MM/yyyy');
+  // const lastFeeDate = format(dto.lastFeeDate, 'dd/MM/yyyy');
   const printer = new PdfPrinter(fonts);
 
   const docDefinition: TDocumentDefinitions = {
@@ -197,10 +197,10 @@ export async function createContractPdf(dto: CreateContractDto) {
             text: writtenNumber(totalAmount, { lang: 'es' }),
             decoration: 'underline',
           },
-          ` 00/100 Bolivianos), a partir de la firma del presente documento, debiendo cancelar la primer cuota en fecha `,
-          { text: fistFeeDate, decoration: 'underline' },
-          ' y su última cuota en fecha ',
-          { text: lastFeeDate, decoration: 'underline' },
+          ` 00/100 Bolivianos), a partir de la firma del presente documento, la fecha de la cuota 1 será 30 días después del desembolso del crédito si eligió pagos mensuales o 7 días después del desembolso si eligió pagos semanales,`,
+          // { text: fistFeeDate, decoration: 'underline' },
+          // ' y su última cuota en fecha ',
+          // { text: lastFeeDate, decoration: 'underline' },
           ' cubriendo de esta forma el total por concepto de capital e intereses. Excepcionalmente cualquier tolerancia en la devolución y/o pago que el ACREEDOR permitiera al deudor en ningún caso se considerara como prorroga, concesión de nuevo plazo, ni extensión del plazo, ni renovación, y menos como novación y no modificara el derecho del ACREEDOR para exigir el pago y en su caso instaurar la correspondiente acción ejecutiva, a la que expresamente se somete el DEUDOR,  en cualquier momento vencido que fueran los términos o plazos convenidos o concedidos y por mucho que se hubiera permitido cualquier tolerancia, cualquier prorroga, concesión de nuevo plazo, extensión de plazo o renovación para tener efecto deberá convenirse expresamente por escrito entre EL ACREEDOR y el DEUDOR, cuyos términos del referido contrato deberá establecerlo el ACREEDOR.',
         ],
       },

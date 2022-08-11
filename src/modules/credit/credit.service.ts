@@ -134,7 +134,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
             where: { id: dto.customerId },
           });
 
-          let emailDto: EmailDto = new EmailDto();
+          const emailDto = new EmailDto();
           emailDto.creditId = credit.id.toString();
           emailDto.email = customer.email;
           emailDto.name = customer.name;
@@ -539,7 +539,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       const instance = axios.create({
         timeout: 1000,
       });
-      const data = await instance.post(url, {
+      await instance.post(url, {
         phone: phone,
         message: message,
       });
