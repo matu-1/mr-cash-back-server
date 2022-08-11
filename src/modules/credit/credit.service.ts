@@ -250,16 +250,9 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       throw new BadRequestException(`approvedPhotoUrl is required`);
     if (dto.status == CREDIT_STATUS.DISBURSED && !dto.disbursementPhotoUrl)
       throw new BadRequestException(`disbursementPhotoUrl is required`);
-    console.log("===============================")
-    console.log(dto.status);
 
     return this.creditRepository.manager.transaction(async (manager) => {
-      if (dto.status === CREDIT_STATUS.APPROVED) {
-        dto.disburseAt = DateUtils.addDays(
-          new Date(),
-          data.expressDisbursement ? 1 : 2,
-        );
-        const fees = await this.createFees(data, manager, dto.disburseAt);
+      if (dto.status === CREDIT_STATUS.PREAPPROVED) {
         const contractDto: CreateContractDto = {
           nit: '00441170',
           acreedorNombre: 'Juan Pablo Salinas Salek',
@@ -274,8 +267,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           amount: data.originalAmount,
           totalAmount: data.totalAmount,
           quantityFee: data.quantityFee,
-          fistFeeDate: fees[0].paymentDate,
-          lastFeeDate: fees.pop().paymentDate,
+          fistFeeDate: new Date(),
+          lastFeeDate: new Date(),
           warrantyDescription: data.warranties
             .map(
               (item) => `${item.brand} - ${item.status} - ${item.description}`,
@@ -293,6 +286,15 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
         dto.urlContract = await uploadConctract(contractDto);
         console.log(dto.urlContract);
       }
+
+      if (dto.status === CREDIT_STATUS.APPROVED) {
+        dto.disburseAt = DateUtils.addDays(
+          new Date(),
+          data.expressDisbursement ? 1 : 2,
+        );
+        await this.createFees(data, manager, dto.disburseAt);
+      }
+
       const dataToSave: any[] = [
         manager.save(CreditStatus, {
           status: dto.status,
@@ -352,9 +354,9 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
     const storage = (dto.originalAmount * (dto.percentageStorage ?? 3)) / 100;
     dto.totalAmount =
-    dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
+      dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
     if (dto.expressDisbursement)
-    dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
+      dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
     console.log(dto.percentageStorage);
     return dto;
   }
