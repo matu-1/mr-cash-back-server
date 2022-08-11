@@ -250,6 +250,8 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       throw new BadRequestException(`approvedPhotoUrl is required`);
     if (dto.status == CREDIT_STATUS.DISBURSED && !dto.disbursementPhotoUrl)
       throw new BadRequestException(`disbursementPhotoUrl is required`);
+    console.log("===============================")
+    console.log(dto.status);
 
     return this.creditRepository.manager.transaction(async (manager) => {
       if (dto.status === CREDIT_STATUS.APPROVED) {
