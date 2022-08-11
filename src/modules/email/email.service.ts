@@ -28,7 +28,7 @@ export class EmailService {
         subject = 'Tu credito está en espera';
         html = waitingTemplate(dto);
         break;
-      case CREDIT_STATUS.WAITING:
+      case CREDIT_STATUS.APPROVED:
         subject = 'Tu credito está aprobado';
         html = aprovedTemplate(dto);
         break;
