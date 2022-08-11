@@ -24,6 +24,8 @@ import { Customer } from '../customer/customer.entity';
 import { FeeStatus } from '../credit-fee/credit-fee.enum';
 import { UpdateCreditDto } from './dtos/update-credit.dto';
 import { Delivery } from '../delivery/delivery.entity';
+import { EmailService } from '../email/email.service';
+import { EmailDto } from '../email/dtos/email.dto';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -31,6 +33,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     private creditRepository: CreditRepository,
     private customerService: CustomerService,
     private bankAccountService: BankAccountService,
+    private emailService: EmailService,
   ) {
     super(creditRepository);
   }
@@ -130,12 +133,20 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           const customer = await manager.findOne(Customer, {
             where: { id: dto.customerId },
           });
+
+          let emailDto: EmailDto = new EmailDto();
+          emailDto.creditId = credit.id.toString();
+          emailDto.email = customer.email;
+          emailDto.name = customer.name;
+          emailDto.status = CREDIT_STATUS.PENDING;
+          await this.emailService.sendEmail(emailDto);
           await this.sendWhatsapp(
             '19174028986',
             `Nuevo crédito *MR CASH BACK*\nID ${
               credit.id.split('-')[0]
             }\nCliente: ${customer.name}\nMonto: ${credit.originalAmount}`,
           );
+
           return credit;
         },
       );

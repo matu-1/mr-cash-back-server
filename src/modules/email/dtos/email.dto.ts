@@ -1,7 +1,7 @@
 import { IsEmail, IsIn, IsUUID, MinLength } from 'class-validator';
 import { CREDIT_STATUS } from 'src/modules/credit/credit.constant';
 export class EmailDto {
-    @IsUUID()
+    @MinLength(3)
     creditId: string;
     @IsEmail()
     email: string;

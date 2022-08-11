@@ -10,7 +10,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
         name: process.env.NAME_EMAIL,
         host: process.env.HOST_EMAIL,
         port: process.env.PORT_EMAIL,
-        secure: false,
+        secure: true,
         auth: {
           user: process.env.FROM_EMAIL,
           pass: process.env.PASS_EMAIL,
@@ -26,5 +26,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
   ],
   providers: [EmailService],
   controllers: [EmailController],
+  exports: [EmailService],
 })
 export class EmailModule {}

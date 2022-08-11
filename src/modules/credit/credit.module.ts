@@ -5,12 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CreditRepository } from './credit.repository';
 import { CustomerModule } from '../customer/customer.module';
 import { BankAccountModule } from '../bank-account/bank-account.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CreditRepository]),
     CustomerModule,
     BankAccountModule,
+    EmailModule,
   ],
   controllers: [CreditController],
   providers: [CreditService],

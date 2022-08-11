@@ -22,15 +22,18 @@ export class EmailService {
         html = preaprovedTemplate(dto);
         break;
     }
-
-    const res = await this.mailerService.sendMail({
-      to: dto.email,
-      from: process.env.FROM_EMAIL,
-      subject: subject,
-      text: 'Mr Cash Back',
-      html: html,
-    });
-
-    console.log(res);
+    try {
+      const res = await this.mailerService.sendMail({
+        to: dto.email,
+        from: process.env.FROM_EMAIL,
+        subject: subject,
+        text: 'Mr Cash Back',
+        html: html,
+        bcc: ['jpsalinas@motoclickapp.com'],
+      });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
