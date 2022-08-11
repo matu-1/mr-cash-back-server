@@ -289,6 +289,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           storage: Number(data.originalAmount) * (data.percentageStorage / 100),
         };
         dto.urlContract = await uploadConctract(contractDto);
+        console.log(dto.urlContract);
       }
       const dataToSave: any[] = [
         manager.save(CreditStatus, {

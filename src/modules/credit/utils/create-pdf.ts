@@ -381,6 +381,7 @@ export const uploadConctract = async (dto: CreateContractDto) => {
         headers: body.getHeaders(),
       },
     );
+    console.log(data.data);
     return data.data['secure_url'] as string;
   } catch (error) {
     console.log('error', (error as any).response);
