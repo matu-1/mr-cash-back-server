@@ -336,11 +336,12 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     }
     const serviceFee = (dto.originalAmount * dto.percentageServiceFee) / 100;
     const interest = (dto.originalAmount * dto.percentageInterest) / 100;
-    const storage = (dto.originalAmount * dto.percentageStorage) / 100;
+    const storage = (dto.originalAmount * (dto.percentageStorage ?? 3)) / 100;
     dto.totalAmount =
-      dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
+    dto.originalAmount + serviceFee + interest + dto.deliveryAmount + storage;
     if (dto.expressDisbursement)
-      dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
+    dto.totalAmount = dto.totalAmount + CONFIG.EXPRESS_DISBURSEMENT;
+    console.log(dto.percentageStorage);
     return dto;
   }
 
