@@ -19,6 +19,9 @@ import { CreditFeeModule } from './modules/credit-fee/credit-fee.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { DeliveryModule } from './modules/delivery/delivery.module';
 import { EmailModule } from './modules/email/email.module';
+import { ConfigModule } from './modules/config/config.module';
+import { BannerModule } from './modules/banner/banner.module';
+import { CategoryOfferModule } from './modules/category-offer/category-offer.module';
 
 @Module({
   imports: [
@@ -42,6 +45,9 @@ import { EmailModule } from './modules/email/email.module';
       exclude: ['/api*'],
     }),
     EmailModule,
+    ConfigModule,
+    BannerModule,
+    CategoryOfferModule,
   ],
   controllers: [AppController],
   providers: [AppService],
