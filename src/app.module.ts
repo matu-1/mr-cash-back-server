@@ -22,6 +22,8 @@ import { EmailModule } from './modules/email/email.module';
 import { ConfigModule } from './modules/config/config.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { CategoryOfferModule } from './modules/category-offer/category-offer.module';
+import { ProviderModule } from './modules/provider/provider.module';
+import { OfferModule } from './modules/offer/offer.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { CategoryOfferModule } from './modules/category-offer/category-offer.mod
     ConfigModule,
     BannerModule,
     CategoryOfferModule,
+    ProviderModule,
+    OfferModule,
   ],
   controllers: [AppController],
   providers: [AppService],
