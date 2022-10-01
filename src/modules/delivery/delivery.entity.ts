@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/utils/base.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Credit } from '../credit/credit.entity';
+import { Offer } from '../offer/offter.entity';
 
 @Entity()
 export class Delivery extends BaseEntity {
@@ -15,9 +16,16 @@ export class Delivery extends BaseEntity {
   @Column({ type: 'decimal', precision: 16, scale: 2, default: 0 })
   amount: number;
   // relations
-  @Column({ name: 'credit_id' })
+  @Column({ name: 'credit_id', nullable: true })
   creditId: string;
+  @Column({ name: 'offer_id', nullable: true })
+  offerId: string;
+  // @Column({ name: 'sale_id', nullable: true })
+  // saleId: string;
   @OneToOne(() => Credit, (credit) => credit.delivery)
   @JoinColumn({ name: 'credit_id' })
   credit: Credit;
+  @OneToOne(() => Offer, (offer) => offer.delivery)
+  @JoinColumn({ name: 'offer_id' })
+  offer: Offer;
 }

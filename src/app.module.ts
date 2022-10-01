@@ -24,6 +24,8 @@ import { BannerModule } from './modules/banner/banner.module';
 import { CategoryOfferModule } from './modules/category-offer/category-offer.module';
 import { ProviderModule } from './modules/provider/provider.module';
 import { OfferModule } from './modules/offer/offer.module';
+import { ProductModule } from './modules/product/product.module';
+import { ProductPhotoModule } from './modules/product-photo/product-photo.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { OfferModule } from './modules/offer/offer.module';
     CategoryOfferModule,
     ProviderModule,
     OfferModule,
+    ProductModule,
+    ProductPhotoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

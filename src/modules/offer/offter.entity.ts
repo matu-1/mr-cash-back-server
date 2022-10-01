@@ -1,8 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { OFFER_STATUS } from './offer.constant';
 import { Customer } from '../customer/customer.entity';
 import { BankAccount } from '../bank-account/bank-account.entity';
 import { BaseEntity } from '../../utils/base.entity';
+import { Product } from '../product/product.entity';
+import { Delivery } from '../delivery/delivery.entity';
 
 @Entity()
 export class Offer extends BaseEntity {
@@ -45,4 +54,8 @@ export class Offer extends BaseEntity {
   @ManyToOne(() => Offer)
   @JoinColumn({ name: 'offer_previous_id' })
   offerPrevious: Offer;
+  @OneToMany(() => Product, (product) => product.offer)
+  products: Product[];
+  @OneToOne(() => Delivery, (delivery) => delivery.offer)
+  delivery: Delivery;
 }
