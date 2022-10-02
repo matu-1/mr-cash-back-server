@@ -26,6 +26,9 @@ import { ProviderModule } from './modules/provider/provider.module';
 import { OfferModule } from './modules/offer/offer.module';
 import { ProductModule } from './modules/product/product.module';
 import { ProductPhotoModule } from './modules/product-photo/product-photo.module';
+import { SaleModule } from './modules/sale/sale.module';
+import { ProductSaleModule } from './modules/product-sale/product-sale.module';
+import { OfferStatusModule } from './modules/offer-status/offer-status.module';
 
 @Module({
   imports: [
@@ -56,6 +59,9 @@ import { ProductPhotoModule } from './modules/product-photo/product-photo.module
     OfferModule,
     ProductModule,
     ProductPhotoModule,
+    SaleModule,
+    ProductSaleModule,
+    OfferStatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

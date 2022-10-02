@@ -2,6 +2,7 @@ import { BaseEntity } from 'src/utils/base.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Credit } from '../credit/credit.entity';
 import { Offer } from '../offer/offter.entity';
+import { Sale } from '../sale/sale.entity';
 
 @Entity()
 export class Delivery extends BaseEntity {
@@ -20,12 +21,15 @@ export class Delivery extends BaseEntity {
   creditId: string;
   @Column({ name: 'offer_id', nullable: true })
   offerId: string;
-  // @Column({ name: 'sale_id', nullable: true })
-  // saleId: string;
+  @Column({ name: 'sale_id', nullable: true })
+  saleId: string;
   @OneToOne(() => Credit, (credit) => credit.delivery)
   @JoinColumn({ name: 'credit_id' })
   credit: Credit;
   @OneToOne(() => Offer, (offer) => offer.delivery)
   @JoinColumn({ name: 'offer_id' })
   offer: Offer;
+  @OneToOne(() => Sale, (sale) => sale.delivery)
+  @JoinColumn({ name: 'sale_id' })
+  sale: Sale;
 }

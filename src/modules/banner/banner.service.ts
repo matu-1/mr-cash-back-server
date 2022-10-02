@@ -9,4 +9,8 @@ export class BannerService extends CrudService<Banner, CreateBannerDto> {
   constructor(private bannerRepository: BannerRepository) {
     super(bannerRepository);
   }
+
+  findByType(type: number) {
+    return this.bannerRepository.find({ where: { type } });
+  }
 }

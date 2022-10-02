@@ -12,6 +12,7 @@ import { BankAccount } from '../bank-account/bank-account.entity';
 import { CREDIT_STATUS } from './credit.constant';
 import { Warranty } from '../warranty/warranty.entity';
 import { Delivery } from '../delivery/delivery.entity';
+import { Sale } from '../sale/sale.entity';
 
 @Entity()
 export class Credit extends BaseEntity {
@@ -67,6 +68,8 @@ export class Credit extends BaseEntity {
   bankAccountId: string;
   @Column({ name: 'credit_previous_id', nullable: true })
   creditPreviousId: string;
+  @Column({ name: 'sale_id', nullable: true })
+  saleId: string;
   @ManyToOne(() => Customer)
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
@@ -80,4 +83,7 @@ export class Credit extends BaseEntity {
   warranties: Warranty[];
   @OneToOne(() => Delivery, (delivery) => delivery.credit)
   delivery: Delivery;
+  @ManyToOne(() => Sale)
+  @JoinColumn({ name: 'sale_id' })
+  sale: Sale;
 }

@@ -9,5 +9,5 @@ export class CreateCategoryOfferDto {
   @IsNotEmpty()
   @MinLength(5)
   @ApiProperty({ required: false })
-  description: string;
+  description?: string;
 }

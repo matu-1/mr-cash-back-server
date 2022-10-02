@@ -18,6 +18,13 @@ export class CreateDeliveryDto {
   reference: string;
   @IsNumber()
   amount: number;
+  @IsOptional()
   @IsUUID()
   creditId: string;
+  @IsOptional()
+  @IsUUID()
+  offerId: string;
+  @IsOptional()
+  @IsUUID()
+  saleId: string;
 }
