@@ -20,6 +20,7 @@ import { User } from 'src/decorators/user.decorator';
 import { DateUtils } from 'src/utils/date';
 import { format } from 'date-fns';
 import { UpdateCreditDto } from './dtos/update-credit.dto';
+import { sendWhatsapp } from 'src/utils/whatsapp';
 
 @ApiTags('Credit')
 @Controller('credit')
@@ -121,7 +122,7 @@ export class CreditController extends CrudController<Credit> {
 
   @Get('test/whatsapp')
   async testMessageWhatsapp() {
-    await this.creditService.sendWhatsapp('59177640687', 'Mensaje de prueba')
+    await sendWhatsapp('59177399398', 'Mensaje de prueba');
   }
   @ApiOperation({
     summary: 'Get Status Historial',

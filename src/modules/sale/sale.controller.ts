@@ -5,8 +5,10 @@ import {
   ParseUUIDPipe,
   Put,
   Param,
+  Get,
+  Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CrudController } from 'src/utils/crud.controller';
 import { Sale } from './sale.entity';
 import { SaleService } from './sale.service';
@@ -33,6 +35,16 @@ export class SaleController extends CrudController<Sale> {
     @Body() dto: UpdateSaleDto,
   ) {
     const result = await this.saleService.update(id, dto);
+    return new Response(result);
+  }
+
+  @ApiOperation({ summary: 'Get sales by customer' })
+  @Get('customer/:id')
+  async findByCustomer(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('limit') limit?: number,
+  ) {
+    const result = await this.saleService.findByCustomer(id, limit);
     return new Response(result);
   }
 }

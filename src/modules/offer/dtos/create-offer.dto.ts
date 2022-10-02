@@ -15,7 +15,7 @@ export class CreateOfferDto {
   @Min(0)
   totalAmount: number;
   @ApiHideProperty()
-  deliveryAmount: number;
+  deliveryAmount?: number;
   @ApiHideProperty()
   status: number;
   @IsUUID()
@@ -23,10 +23,12 @@ export class CreateOfferDto {
   @IsUUID()
   bankAccountId: string;
   @ApiHideProperty()
-  offerPreviousId: string;
+  offerPreviousId?: string;
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ProductDto)
   products: ProductDto[];
+  @ApiHideProperty()
+  id?: string;
 }

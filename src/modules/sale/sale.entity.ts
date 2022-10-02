@@ -35,7 +35,7 @@ export class Sale extends BaseEntity {
   paymentMethod: number;
   //relations
   @Column({ name: 'customer_id' })
-  customerId: number;
+  customerId: string;
   @ManyToOne(() => Customer)
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;

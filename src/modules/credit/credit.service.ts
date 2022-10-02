@@ -26,6 +26,7 @@ import { UpdateCreditDto } from './dtos/update-credit.dto';
 import { Delivery } from '../delivery/delivery.entity';
 import { EmailService } from '../email/email.service';
 import { EmailDto } from '../email/dtos/email.dto';
+import { sendWhatsapp } from 'src/utils/whatsapp';
 
 @Injectable()
 export class CreditService extends CrudService<Credit, CreateCreditDto> {
@@ -80,7 +81,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
     userId?: string,
     creditStatus: number = CREDIT_STATUS.PENDING,
   ) {
-    await Promise.all([
+    const [customer] = await Promise.all([
       this.customerService.findById(
         dto.customerId,
         'The customer does not exist',
@@ -130,9 +131,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
               })),
             );
           }
-          const customer = await manager.findOne(Customer, {
-            where: { id: dto.customerId },
-          });
 
           const emailDto = new EmailDto();
           emailDto.creditId = credit.id.toString();
@@ -140,7 +138,7 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
           emailDto.name = customer.name;
           emailDto.status = CREDIT_STATUS.PENDING;
           await this.emailService.sendEmail(emailDto);
-          await this.sendWhatsapp(
+          await sendWhatsapp(
             '19174028986',
             `Nuevo crédito *MR CASH BACK*\nID ${
               credit.id.split('-')[0]
@@ -532,23 +530,6 @@ export class CreditService extends CrudService<Credit, CreateCreditDto> {
       .getMany();
   }
 
-  async sendWhatsapp(phone: string, message: string) {
-    // EXAMPLE PHONE = 59177640687
-    try {
-      const url = 'https://labs.patio.com.bo/whatsapp/send_message.php';
-      const instance = axios.create({
-        timeout: 1000,
-      });
-      await instance.post(url, {
-        phone: phone,
-        message: message,
-      });
-      // console.log(data);
-      // return data;
-    } catch (error) {
-      // return null;
-    }
-  }
   async findStatus(id: string) {
     const statusSql = `
       select cs.id, cs.status, cs.reason, cs.created_at, u.name, u.email
