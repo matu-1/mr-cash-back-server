@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CrudService } from 'src/utils/crud.service';
 import { Sale } from './sale.entity';
 import { CreateSaleDto } from './dtos/create-sale.dto';
@@ -6,6 +6,8 @@ import { SaleRepository } from './sale.repository';
 import { CustomerService } from '../customer/customer.service';
 import { MessageException } from '../../constants/message-exception';
 import { ProductSale } from '../product-sale/product-sale.entity';
+import { Product } from '../product/product.entity';
+import { PRODUCT_STATUS } from '../product/product.constant';
 
 @Injectable()
 export class SaleService extends CrudService<Sale, CreateSaleDto> {
@@ -23,9 +25,10 @@ export class SaleService extends CrudService<Sale, CreateSaleDto> {
         'customer',
         'delivery',
         'products',
-        'products.photos',
-        'products.categoryOffer',
-        'products.provider',
+        'products.product',
+        'products.product.photos',
+        'products.product.categoryOffer',
+        'products.product.provider',
       ],
       errorMessage,
     );
@@ -51,6 +54,29 @@ export class SaleService extends CrudService<Sale, CreateSaleDto> {
     );
     return this.saleRepository.manager.transaction(async (manager) => {
       const sale = await manager.save(Sale, dto);
+      //update quantity o stock
+      const products = await manager.findByIds(
+        Product,
+        dto.productsSale.map((item) => item.productId),
+        { where: { status: PRODUCT_STATUS.TO_SELL } },
+      );
+      console.log(products.length);
+      if (products.length != dto.productsSale.length)
+        throw new BadRequestException('Some product does not exist');
+      const productsToSave: any[] = [];
+      for (let i = 0; i < products.length; i++) {
+        const product = products[i];
+        const quantity = product.quantity - dto.productsSale[i].quantity;
+        if (quantity < 0)
+          throw new BadRequestException(
+            `The product '${product.name}' is out of stock`,
+          );
+        productsToSave.push({
+          id: product.id,
+          quantity: quantity,
+        });
+      }
+      await manager.save(Product, productsToSave);
       await manager.save(
         ProductSale,
         dto.productsSale.map((item) => ({

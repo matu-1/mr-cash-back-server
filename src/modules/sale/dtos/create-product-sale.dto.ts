@@ -5,6 +5,7 @@ export class CreateProductSaleDto {
   @Min(0)
   price: number;
   @IsInt()
+  @Min(1)
   quantity: number;
   @IsUUID()
   productId: string;

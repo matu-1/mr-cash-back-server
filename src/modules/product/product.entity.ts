@@ -32,7 +32,7 @@ export class Product extends BaseEntity {
   @Column({ type: 'tinyint', default: PRODUCT_STATUS.ENABLED })
   status: number;
   @Column({ type: 'decimal', precision: 16, scale: 2, nullable: true })
-  value: number;
+  value: number; //para la oferta
   //relations
   @Column({ name: 'category_offer_id' })
   categoryOfferId: string;

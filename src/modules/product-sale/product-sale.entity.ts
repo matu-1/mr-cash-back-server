@@ -14,7 +14,7 @@ export class ProductSale extends BaseEntity {
   saleId: string;
   @Column({ name: 'product_id' })
   productId: string;
-  @ManyToOne(() => Sale)
+  @ManyToOne(() => Sale, (sale) => sale.products)
   @JoinColumn({ name: 'sale_id' })
   sale: Sale;
   @ManyToOne(() => Product)

@@ -22,6 +22,7 @@ export class CreateProductDto {
   @MinLength(5)
   description?: string;
   @IsInt()
+  @Min(1)
   quantity: number;
   @IsNumber()
   @Min(0)

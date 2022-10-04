@@ -99,7 +99,7 @@ export class OfferService extends CrudService<Offer, CreateOfferDto> {
             ProductPhoto,
             item.photosUrl.map((photoUrl) => ({
               photoUrl,
-              warrantyId: product.id,
+              productId: product.id,
             })),
           );
         }

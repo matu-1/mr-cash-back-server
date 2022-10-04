@@ -20,6 +20,15 @@ export class ProductService extends CrudService<Product, CreateProductDto> {
     super(productRepository);
   }
 
+  async findAll(relations?: string[], status?: number) {
+    const where: any = {};
+    if (status) where.status = status;
+    return this.productRepository.find({
+      relations,
+      where,
+    });
+  }
+
   async create(dto: CreateProductDto) {
     const dataPromise: Promise<any>[] = [
       this.categoryOfferService.findById(
