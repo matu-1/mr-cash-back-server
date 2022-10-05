@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CrudService } from 'src/utils/crud.service';
 import { Product } from './product.entity';
 import { CreateProductDto } from './dtos/create-product.dto';
@@ -8,6 +8,8 @@ import { CategoryOfferService } from '../category-offer/category-offer.service';
 import { ProviderService } from '../provider/provider.service';
 import { OfferService } from '../offer/offer.service';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { AddStockDto } from './dtos/add-stock.dto';
+import { PRODUCT_STATUS } from './product.constant';
 
 @Injectable()
 export class ProductService extends CrudService<Product, CreateProductDto> {
@@ -75,5 +77,13 @@ export class ProductService extends CrudService<Product, CreateProductDto> {
       );
     await Promise.all(dataPromise);
     return super.update(id, dto);
+  }
+
+  async addStock(id: string, dto: AddStockDto) {
+    const data = await this.findById(id);
+    if (data.status == PRODUCT_STATUS.LOST)
+      throw new BadRequestException('The product unavailable');
+    data.quantity += dto.quantity;
+    return this.productRepository.save(data);
   }
 }

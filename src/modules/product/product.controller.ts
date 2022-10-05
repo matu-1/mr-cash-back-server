@@ -16,6 +16,7 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { Response } from 'src/utils/response';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PRODUCT_STATUS } from './product.constant';
+import { AddStockDto } from './dtos/add-stock.dto';
 
 @ApiTags('Product')
 @Controller('product')
@@ -48,6 +49,16 @@ export class ProductController extends CrudController<Product> {
     @Body() dto: UpdateProductDto,
   ) {
     const result = await this.productService.update(id, dto);
+    return new Response(result);
+  }
+
+  @ApiOperation({ summary: 'Add stock to product' })
+  @Put('stock/:id')
+  async addStock(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AddStockDto,
+  ) {
+    const result = await this.productService.addStock(id, dto);
     return new Response(result);
   }
 }

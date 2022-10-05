@@ -19,19 +19,31 @@ export class SaleService extends CrudService<Sale, CreateSaleDto> {
   }
 
   async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
-    return this.findByIdWithRelations(
-      id,
-      [
+    return this.findByIdFull(id, {
+      relations: [
+        'sale.customer',
+        'sale.delivery',
+        'sale.products',
+        'products.product',
+        'product.photos',
+        'product.categoryOffer',
+        'product.provider',
+      ],
+      select: [
+        'sale',
         'customer',
         'delivery',
-        'products',
-        'products.product',
-        'products.product.photos',
-        'products.product.categoryOffer',
-        'products.product.provider',
+        'products.id',
+        'products.price',
+        'products.quantity',
+        'products.createdAt',
+        'product',
+        'photos.id',
+        'categoryOffer.name',
+        'provider.name',
       ],
       errorMessage,
-    );
+    });
   }
 
   async findByCustomer(customerId: string, limit?: number) {

@@ -36,19 +36,18 @@ export class OfferService extends CrudService<Offer, CreateOfferDto> {
   }
 
   async findById(id: string, errorMessage = MessageException.NOT_FOUND) {
-    return this.findByIdWithRelations(
-      id,
-      [
-        'customer',
-        'delivery',
-        'bankAccount',
-        'products',
+    return this.findByIdFull(id, {
+      relations: [
+        'offer.customer',
+        'offer.delivery',
+        'offer.bankAccount',
+        'offer.products',
         'products.photos',
         'products.categoryOffer',
         'products.provider',
       ],
       errorMessage,
-    );
+    });
   }
 
   async create(

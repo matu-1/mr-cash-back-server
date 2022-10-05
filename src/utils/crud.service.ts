@@ -3,6 +3,12 @@ import { Repository, DeepPartial } from 'typeorm';
 import { MessageException } from '../constants/message-exception';
 import { NotFoundException } from '@nestjs/common';
 
+type FindFull = {
+  relations?: string[];
+  select?: string[];
+  errorMessage?: string;
+};
+
 export abstract class CrudService<
   TEntity extends BaseEntity,
   TCreateDto extends DeepPartial<TEntity>,
@@ -38,6 +44,25 @@ export abstract class CrudService<
     errorMessage = MessageException.NOT_FOUND,
   ) {
     const data = await this.repository.findOne(id, { relations });
+    if (!data) throw new NotFoundException(errorMessage);
+    return data;
+  }
+
+  async findByIdFull(
+    id: string,
+    { relations, select, errorMessage = MessageException.NOT_FOUND }: FindFull,
+  ) {
+    const entityName = this.repository.metadata.name.toLowerCase();
+    let query = this.repository
+      .createQueryBuilder(entityName)
+      .where(`${entityName}.id = :id`, { id });
+
+    relations?.forEach((relation) => {
+      const [alias, relationName] = relation.split('.');
+      query = query.leftJoinAndSelect(`${alias}.${relationName}`, relationName);
+    });
+    if (select) query = query.select(select);
+    const data = await query.getOne();
     if (!data) throw new NotFoundException(errorMessage);
     return data;
   }
