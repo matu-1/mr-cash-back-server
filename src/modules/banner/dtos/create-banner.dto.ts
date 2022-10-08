@@ -11,8 +11,9 @@ export class CreateBannerDto {
   @IsNotEmpty()
   @IsUrl()
   photoUrl: string;
+  @ApiProperty({ description: 'home, oferta' })
   @IsIn([0, 1])
-  type: number; //[?, ?]
+  type: number; //[home, oferta]
   @IsOptional()
   @IsNotEmpty()
   @MinLength(5)
