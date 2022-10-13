@@ -22,12 +22,21 @@ export class ProductService extends CrudService<Product, CreateProductDto> {
     super(productRepository);
   }
 
-  async findAll(relations?: string[], status?: number) {
+  async findAll(_?: string[], status?: number) {
     const where: any = {};
     if (status) where.status = status;
     return this.productRepository.find({
-      relations,
+      relations: ['categoryOffer'],
       where,
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  findById(id: string, errorMessage?: string): Promise<Product> {
+    return super.findByIdFull(id, {
+      relations: ['product.photos'],
+      errorMessage,
+      select: ['product', 'photos.photoUrl'],
     });
   }
 
