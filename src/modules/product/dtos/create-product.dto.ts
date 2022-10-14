@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -11,6 +12,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { PRODUCT_STATUS } from '../product.constant';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -42,4 +44,8 @@ export class CreateProductDto {
   @ArrayMinSize(1)
   @IsUrl({}, { each: true })
   photosUrl: string[];
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsIn(Object.values(PRODUCT_STATUS))
+  status: number;
 }

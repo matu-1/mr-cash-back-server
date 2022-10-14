@@ -36,7 +36,7 @@ export class ProductService extends CrudService<Product, CreateProductDto> {
     return super.findByIdFull(id, {
       relations: ['product.photos'],
       errorMessage,
-      select: ['product', 'photos.photoUrl'],
+      select: ['product', 'photos.photoUrl', 'photos.id'],
     });
   }
 
